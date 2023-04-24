@@ -3,3 +3,4 @@
 ## 目录
  + [1.1 安装 CovScript](./install.md)
  + [1.2 设置 CovScript 环境](./setup.md)
+ + [1.3 你好，世界！](./hello.md)
