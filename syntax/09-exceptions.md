@@ -198,7 +198,7 @@ end
 class FileNotFoundException extends Exception
     var filename = ""
     
-    function construct(fname)
+    function construct(fname) override
         this.filename = fname
         this.message = "File not found: " + fname
         this.code = 404
@@ -212,7 +212,7 @@ end
 class InvalidArgumentException extends Exception
     var argumentName = ""
     
-    function construct(argName, msg)
+    function construct(argName, msg) override
         this.argumentName = argName
         this.message = "Invalid argument '" + argName + "': " + msg
         this.code = 400
@@ -222,14 +222,14 @@ end
 # 使用自定义异常
 function openFile(filename)
     if !system.path.exist(filename)
-        throw new FileNotFoundException(filename)
+        throw new FileNotFoundException{filename}
     end
     return iostream.fstream(filename, iostream.openmode.in)
 end
 
 function processNumber(num)
     if num < 0
-        throw new InvalidArgumentException("num", "must be non-negative")
+        throw new InvalidArgumentException{"num", "must be non-negative"}
     end
     return num * 2
 end
@@ -238,7 +238,7 @@ end
 try
     var file = openFile("nonexistent.txt")
 catch e
-    if typeid e == typeid new FileNotFoundException("")
+    if typeid e == typeid new FileNotFoundException{""}
         system.out.println("File error: " + e.getMessage())
         system.out.println("Filename: " + e.getFilename())
     else
@@ -385,7 +385,7 @@ class FileManager
         
         try
             if !system.path.exist(filename)
-                throw new FileNotFoundException(filename)
+                throw new FileNotFoundException{filename}
             end
             
             file = iostream.fstream(filename, iostream.openmode.in)
@@ -442,7 +442,7 @@ class HttpClient
         try
             # 验证 URL
             if url == null || url.empty
-                throw new InvalidArgumentException("url", "URL cannot be empty")
+                throw new InvalidArgumentException{"url", "URL cannot be empty"}
             end
             
             # 发送请求
@@ -486,11 +486,11 @@ end
 class Validator
     function validateEmail(email)
         if email == null || email.empty
-            throw new InvalidArgumentException("email", "cannot be empty")
+            throw new InvalidArgumentException{"email", "cannot be empty"}
         end
         
         if !email.contains("@")
-            throw new InvalidArgumentException("email", "invalid format")
+            throw new InvalidArgumentException{"email", "invalid format"}
         end
         
         return true
@@ -498,11 +498,11 @@ class Validator
     
     function validateAge(age)
         if age < 0
-            throw new InvalidArgumentException("age", "cannot be negative")
+            throw new InvalidArgumentException{"age", "cannot be negative"}
         end
         
         if age > 150
-            throw new InvalidArgumentException("age", "unrealistic value")
+            throw new InvalidArgumentException{"age", "unrealistic value"}
         end
         
         return true
@@ -547,7 +547,7 @@ end
 function processItem(item)
     # 参数验证
     if item == null
-        throw new InvalidArgumentException("item", "cannot be null")
+        throw new InvalidArgumentException{"item", "cannot be null"}
     end
     
     # 资源管理

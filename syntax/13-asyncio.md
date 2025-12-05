@@ -447,7 +447,7 @@ class AsyncQueue
     var items = new list
     var maxSize = 10
     
-    function construct(size)
+    function construct(size) override
         this.maxSize = size
     end
     
@@ -478,7 +478,7 @@ class AsyncQueue
 end
 
 # 创建共享队列
-var queue = new AsyncQueue(5)
+var queue = new AsyncQueue{5}
 
 # 生产者
 var producer = fiber.create([](q, count) {
@@ -665,7 +665,7 @@ class WorkerPool
     var activeWorkers = 0
     var taskQueue = new list
     
-    function construct(max)
+    function construct(max) override
         this.maxWorkers = max
     end
     

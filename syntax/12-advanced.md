@@ -25,7 +25,7 @@ end)
 # 复杂的 do 表达式
 var value = do
     var sum = 0
-    for i=1,i <= 10,++i
+    for i = 1, i <= 10, ++i
         sum += i
     end
     sum
@@ -366,8 +366,8 @@ class Vector
     end
 end
 
-var v1 = new Vector(1, 2)
-var v2 = new Vector(3, 4)
+var v1 = new Vector{1, 2}
+var v2 = new Vector{3, 4}
 var v3 = v1.add(v2)
 var v4 = v1.multiply(2)
 
@@ -566,7 +566,7 @@ end
 function reverse(str)
     # 反转实现
     var result = ""
-    for i=str.size - 1,i >= 0,--i
+    for i = str.size - 1, i >= 0, --i
         result += str[i]
     end
     return result
