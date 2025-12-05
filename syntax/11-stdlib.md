@@ -373,13 +373,17 @@ function exitProgram(code)
     runtime.exit(code)
 end
 
-# 获取命令行参数（在函数上下文中）
+# 获取命令行参数
+# 注意：context 是函数的隐式上下文参数
 function showArgs(context)
     var args = context.cmd_args
     foreach arg in args
         system.out.println("Arg: " + arg)
     end
 end
+
+# 在需要时调用
+# showArgs(context)
 
 # 执行系统命令
 var result = system.run("ls -l")
@@ -395,13 +399,14 @@ system.out.println("Exit code: " + to_string(result))
 var path = runtime.get_import_path()
 system.out.println("Import path: " + path)
 
-# 动态导入模块（在函数上下文中）
+# 动态导入模块
+# 注意：context 是函数的隐式上下文参数
 function loadModule(context, path)
     var module = context.source_import(path)
     return module
 end
 
-# 使用示例
+# 在需要时调用
 # var myModule = loadModule(context, "path/to/file.csc")
 ```
 
