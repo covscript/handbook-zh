@@ -453,6 +453,8 @@ var task = fiber.create([](name) {
 fiber.resume(task, "Task1")
 ```
 
+**提示**：关于协程和异步编程的详细内容，请参阅 [2.13 异步编程与协程](./13-asyncio.md) 章节。
+
 ## 2.11.9 编译时求值
 
 ### @begin/@end 块
@@ -604,6 +606,224 @@ function trim(str)
 end
 ```
 
+## 2.11.12 更多实用示例
+
+### CSV 文件读写
+
+```covscript
+# 读取 CSV 文件
+function readCSV(filename)
+    var records = new list
+    var file = iostream.fstream(filename, iostream.openmode.in)
+    
+    try
+        var header = file.getline()
+        var headers = split(header, ',')
+        
+        loop
+            var line = file.getline()
+            if file.eof()
+                break
+            end
+            
+            var values = split(line, ',')
+            var record = new hash_map
+            
+            for i = 0, i < headers.size && i < values.size, ++i
+                record.insert(trim(headers[i]), trim(values[i]))
+            end
+            
+            records.push_back(record)
+        end
+    catch e
+        system.out.println("读取 CSV 错误: " + e)
+    finally
+        file.close()
+    end
+    
+    return records
+end
+
+# 写入 CSV 文件
+function writeCSV(filename, data, headers)
+    var file = iostream.fstream(filename, iostream.openmode.out)
+    
+    try
+        # 写入头部
+        file.println(join(headers, ","))
+        
+        # 写入数据
+        foreach record in data
+            var values = new list
+            foreach header in headers
+                if record.exist(header)
+                    values.push_back(to_string(record[header]))
+                else
+                    values.push_back("")
+                end
+            end
+            file.println(join(values, ","))
+        end
+    catch e
+        system.out.println("写入 CSV 错误: " + e)
+    finally
+        file.close()
+    end
+end
+```
+
+### 进度条显示
+
+```covscript
+# 显示文本进度条
+function showProgress(current, total, width)
+    var percent = (current * 100) / total
+    var filled = (current * width) / total
+    
+    var bar = "["
+    for i = 0, i < width, ++i
+        if i < filled
+            bar += "="
+        else
+            bar += " "
+        end
+    end
+    bar += "] " + to_string(percent) + "%"
+    
+    system.out.print("\r" + bar)
+    
+    if current >= total
+        system.out.println("")
+    end
+end
+
+# 使用示例
+var total = 100
+for i = 0, i <= total, ++i
+    showProgress(i, total, 50)
+    runtime.sleep(50)
+end
+```
+
+### 配置文件管理
+
+```covscript
+# INI 格式配置文件读取
+function readINI(filename)
+    var config = new hash_map
+    var currentSection = "default"
+    var file = iostream.fstream(filename, iostream.openmode.in)
+    
+    try
+        loop
+            var line = file.getline()
+            if file.eof()
+                break
+            end
+            
+            line = trim(line)
+            
+            # 跳过空行和注释
+            if line.empty || line[0] == '#' || line[0] == ';'
+                continue
+            end
+            
+            # 检查是否是节标题
+            if line[0] == '[' && line[line.size - 1] == ']'
+                currentSection = line.substr(1, line.size - 2)
+                if !config.exist(currentSection)
+                    config.insert(currentSection, new hash_map)
+                end
+            else
+                # 解析键值对
+                var eqPos = line.find('=')
+                if eqPos != -1
+                    var key = trim(line.substr(0, eqPos))
+                    var value = trim(line.substr(eqPos + 1))
+                    
+                    if !config.exist(currentSection)
+                        config.insert(currentSection, new hash_map)
+                    end
+                    
+                    config[currentSection].insert(key, value)
+                end
+            end
+        end
+    catch e
+        system.out.println("读取 INI 错误: " + e)
+    finally
+        file.close()
+    end
+    
+    return config
+end
+```
+
+### 简单的日志系统
+
+```covscript
+class Logger
+    var logFile = null
+    var logLevel = "INFO"
+    var levels = {"DEBUG": 0, "INFO": 1, "WARNING": 2, "ERROR": 3}
+    
+    function construct(filename)
+        this.logFile = iostream.fstream(filename, iostream.openmode.app)
+    end
+    
+    function setLevel(level)
+        this.logLevel = level
+    end
+    
+    function log(level, message)
+        if this.levels[level] >= this.levels[this.logLevel]
+            var timestamp = runtime.time()
+            var logEntry = "[" + to_string(timestamp) + "] [" + level + "] " + message
+            
+            # 写入文件
+            this.logFile.println(logEntry)
+            this.logFile.flush()
+            
+            # 同时输出到控制台
+            system.out.println(logEntry)
+        end
+    end
+    
+    function debug(message)
+        this.log("DEBUG", message)
+    end
+    
+    function info(message)
+        this.log("INFO", message)
+    end
+    
+    function warning(message)
+        this.log("WARNING", message)
+    end
+    
+    function error(message)
+        this.log("ERROR", message)
+    end
+    
+    function close()
+        if this.logFile != null
+            this.logFile.close()
+        end
+    end
+end
+
+# 使用日志系统
+var logger = new Logger("app.log")
+logger.setLevel("INFO")
+
+logger.debug("这条不会显示")
+logger.info("应用程序启动")
+logger.warning("这是一个警告")
+logger.error("发生错误")
+
+logger.close()
+```
+
 ## 标准库使用最佳实践
 
 1. **导入需要的模块**：只导入实际使用的模块
@@ -611,6 +831,8 @@ end
 3. **资源管理**：及时关闭文件和其他资源
 4. **性能考虑**：避免频繁的类型转换和字符串拼接
 5. **跨平台兼容**：注意路径分隔符和系统差异
+6. **使用工具函数**：为常用操作创建可复用的工具函数
+7. **日志记录**：在关键位置添加日志，便于调试和监控
 
 ```covscript
 # 好的实践示例
