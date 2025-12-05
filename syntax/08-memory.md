@@ -23,7 +23,7 @@ class Person
     end
 end
 
-var person = new Person("Alice", 25)
+var person = new Person{"Alice", 25}
 
 # 创建结构体实例
 struct Point
@@ -38,7 +38,7 @@ point.y = 20
 
 ### 对象生命周期
 
-CovScript 使用引用计数进行自动内存管理。当对象不再被引用时，会自动释放。
+CovScript 使用栈进行自动内存管理。当栈解退时，会自动释放。
 
 ```covscript
 function createList()

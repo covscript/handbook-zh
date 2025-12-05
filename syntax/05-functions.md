@@ -90,15 +90,6 @@ end
 system.out.println(sum(1, 2, 3))           # 6
 system.out.println(sum(1, 2, 3, 4, 5))     # 15
 system.out.println(sum(10, 20))            # 30
-
-# 可变参数和固定参数混合
-function printWithPrefix(prefix, ...items)
-    foreach item in items
-        system.out.println(prefix + to_string(item))
-    end
-end
-
-printWithPrefix("Item: ", 1, 2, 3, 4)
 ```
 
 ## 2.5.5 Lambda 表达式
@@ -121,11 +112,6 @@ end
 
 var result1 = applyOperation(10, 5, [](a, b) -> a + b)  # 15
 var result2 = applyOperation(10, 5, [](a, b) -> a * b)  # 50
-
-# 捕获外部变量
-var factor = 10
-var multiply = [](x) -> x * factor
-system.out.println(multiply(5))  # 50
 ```
 
 ### Lambda 表达式的高级用法
@@ -171,7 +157,7 @@ var squared = map(numbers, [](x) -> x * x)
 
 ```covscript
 # ECS 中的类型标注（强制类型检查）
-function calculateDiscount(price:number, discountRate:number):number
+function calculateDiscount(price:number, discountRate:number)
     return price * (1 - discountRate)
 end
 
@@ -308,8 +294,8 @@ system.out.println(fibonacci(10))  # 55
 function listFiles(path, indent)
     var files = system.path.scan(path)
     foreach file in files
-        system.out.println(indent + file)
-        if system.path.is_dir(path + "/" + file)
+        system.out.println(indent + file.name)
+        if system.path.is_directory(path + "/" + file)
             listFiles(path + "/" + file, indent + "  ")
         end
     end

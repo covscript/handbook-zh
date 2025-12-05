@@ -24,7 +24,7 @@ package math_utils
     
     function power(base, exponent)
         var result = 1
-        for i=0,i < exponent,++i
+        for i=0, i < exponent, ++i
             result *= base
         end
         return result
@@ -123,22 +123,7 @@ system.out.println("Engineering employees: " + to_string(engCount))
 
 ## 2.7.3 导入模块（import）
 
-### 基本导入
-
-```covscript
-# 导入整个模块
-import codec.json
-
-# 使用模块
-var data = new hash_map
-data.insert("name", "Alice")
-data.insert("age", 25)
-
-var jsonString = json.to_string(data)
-system.out.println(jsonString)
-```
-
-### 导入标准库模块
+### 导入整个模块
 
 ```covscript
 # 导入正则表达式模块
@@ -152,12 +137,21 @@ var match = regex.match(text, pattern)
 if match
     system.out.println("Found number!")
 end
+```
 
-# 导入网络模块
-import network
+### 导入模块中的一个子空间
 
-# 创建 HTTP 客户端
-var client = network.http.client()
+```covscript
+# 仅导入 JSON 模块
+import codec.json
+
+# 使用模块
+var data = new hash_map
+data.insert("name", "Alice")
+data.insert("age", 25)
+
+var json_obj = json.from_var(data)
+system.out.println(json.to_string(json_obj))
 ```
 
 ## 2.7.4 import as（别名导入）
@@ -172,11 +166,11 @@ var data = new hash_map
 data.insert("key", "value")
 
 # 使用别名
-var jsonStr = j.to_string(data)
-system.out.println(jsonStr)
+var json_obj = j.from_var(data)
+system.out.println(json.to_string(json_obj))
 
 # 导入多个模块并使用别名
-import codec.base64 as b64
+import codec.base64.rfc4648 as b64
 import codec.json as json_codec
 
 var text = "Hello, World!"
@@ -190,13 +184,10 @@ system.out.println("Encoded: " + encoded)
 
 ```covscript
 # 不使用 using
-import math
-
 var result1 = math.abs(-10)
 var result2 = math.sqrt(16)
 
 # 使用 using
-import math
 using math
 
 var result3 = abs(-10)    # 直接使用，无需前缀
@@ -214,21 +205,6 @@ var msg = helper()
 system.out.println(msg)
 ```
 
-### using 特定成员
-
-```covscript
-# 只导入特定成员
-import math
-using math.abs
-using math.sqrt
-
-var x = abs(-42)
-var y = sqrt(25)
-
-# 但其他成员仍需要前缀
-var z = math.sin(3.14)
-```
-
 ## 2.7.6 包的组织结构
 
 ### 创建可复用的包
@@ -236,64 +212,64 @@ var z = math.sin(3.14)
 ```covscript
 # string_utils.csp
 package string_utils
-    # 字符串工具函数
-    function reverse(str)
-        var result = ""
-        for i=str.size - 1,i >= 0,--i
-            result += str[i]
-        end
-        return result
+
+# 字符串工具函数
+function reverse(str)
+    var result = ""
+    for i = str.size - 1, i >= 0, --i
+        result += str[i]
     end
+    return result
+end
+
+function toUpperCase(str)
+    var result = ""
+    foreach ch in str
+        if ch.isalpha()
+            result += ch.toupper()
+        else
+            result += ch
+        end
+    end
+    return result
+end
+
+function toLowerCase(str)
+    var result = ""
+    foreach ch in str
+        if ch.isalpha()
+            result += ch.tolower()
+        else
+            result += ch
+        end
+    end
+    return result
+end
+
+function contains(str, substr)
+    return str.find(substr) != -1
+end
+
+function split(str, delimiter)
+    var result = new list
+    var current = ""
     
-    function toUpperCase(str)
-        var result = ""
-        foreach ch in str
-            if ch >= 'a' && ch <= 'z'
-                result += to_string(ascii(ch) - 32)
-            else
-                result += ch
+    foreach ch in str
+        if ch == delimiter
+            if current.size > 0
+                result.push_back(current)
+                current = ""
             end
+        else
+            current += ch
         end
-        return result
     end
     
-    function toLowerCase(str)
-        var result = ""
-        foreach ch in str
-            if ch >= 'A' && ch <= 'Z'
-                result += to_string(ascii(ch) + 32)
-            else
-                result += ch
-            end
-        end
-        return result
+    if current.size > 0
+        result.push_back(current)
     end
     
-    function contains(str, substr)
-        return str.find(substr) != -1
-    end
-    
-    function split(str, delimiter)
-        var result = new list
-        var current = ""
-        
-        foreach ch in str
-            if ch == delimiter
-                if current.size > 0
-                    result.push_back(current)
-                    current = ""
-                end
-            else
-                current += ch
-            end
-        end
-        
-        if current.size > 0
-            result.push_back(current)
-        end
-        
-        return result
-    end
+    return result
 end
 ```
 
@@ -326,14 +302,10 @@ CovScript 在以下位置搜索模块：
 
 ```covscript
 # 查看导入路径
-import system
 system.out.println("Import paths:")
-foreach path in runtime.get_import_path()
+foreach path in runtime.get_import_path().split({system.path.delimiter})
     system.out.println("  " + path)
 end
-
-# 添加自定义导入路径
-runtime.add_import_path("/custom/modules")
 ```
 
 ## 2.7.8 实际应用示例

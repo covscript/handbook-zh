@@ -15,7 +15,6 @@ var negative = -10
 
 # 浮点数
 var pi = 3.14159
-var scientific = 1.5e-3
 
 # 运算
 var sum = 10 + 5        # 15
@@ -80,10 +79,11 @@ var text = "Hello"
 text.append(", World!")  # text 现在是 "Hello, World!"
 
 # 字符串长度
-var len = str.size  # 注意：size 不需要括号
+var len = str.size  # 注意：size 是属性
 
 # 字符串索引（从0开始）
 var firstChar = str[0]  # 'H'
+var lastChar = str[-1]  # '!'
 ```
 
 ## 2.2.2 容器类型
@@ -100,12 +100,15 @@ var names = {"Alice", "Bob", "Charlie"}
 # 访问元素
 var first = arr[0]      # 1
 var second = arr[1]     # 2
+var last = arr[-1]      # 5
 
-# 修改元素
-arr[0] = 10
+# 修改元素，可以是不同类型
+arr[0] = "1"
+# 使用 [] 访问元素可自动扩容
+arr[5] = 6
 
 # 获取数组大小
-var size = arr.size   # 5，注意 size 不需要括号
+var size = arr.size   # 6，注意 size 是属性
 ```
 
 ### 列表 (List)
@@ -151,18 +154,19 @@ pair.first = 2
 pair.second = "two"
 ```
 
-### 哈希映射 (Hash Map)
+### 哈希映射表 (Hash Map)
 
-哈希映射用于存储键值对，提供快速查找。
+哈希映射表用于存储键值对，提供快速查找。
 
 ```covscript
-# 创建哈希映射
+# 创建空哈希映射表
 var map = new hash_map
 
 # 添加键值对
 map.insert("name", "Alice")
 map.insert("age", 25)
-map.insert("city", "Shanghai")
+# 访问不存在的键会自动创建索引
+map.insert["city"] = "Shanghai"
 
 # 访问元素（可以使用 .at 或下标语法）
 var name = map.at("name")
@@ -181,8 +185,19 @@ map.erase("city")
 
 # 遍历哈希映射
 foreach item in map
-    system.out.println(item.first + ": " + item.second)
+    system.out.println(item.key + ": " + item.value)
 end
+
+# 也可以从数组快捷创建
+# @begin @end 是预处理指令，用于告诉编译器这里要多行
+# ECS 可自动处理跨行逻辑
+@begin
+map = {
+    "name":"Alice",
+    "age":25,
+    "city": "Shanghai"
+}.to_hash_map()
+@end
 ```
 
 ### 哈希集合 (Hash Set)
@@ -210,48 +225,22 @@ set.erase(3)
 # 获取集合大小
 var size = set.size
 
-# 集合运算（交集、并集、补集）
-var set1 = new hash_set
-set1.insert(1)
-set1.insert(2)
-set1.insert(3)
+# 集合运算
+var set1 = {1, 2, 3}.to_hash_set()
 
-var set2 = new hash_set
-set2.insert(2)
-set2.insert(3)
-set2.insert(4)
+var set2 = {2, 3, 4}.to_hash_set()
 
 # 并集
-var union_set = set1 | set2      # {1, 2, 3, 4}
+var union_set = hash_set.merge(set1, set2)      # {1, 2, 3, 4}
 
 # 交集
-var intersect_set = set1 & set2  # {2, 3}
+var intersect_set = hash_set.intersect(set1, set2)  # {2, 3}
 
 # 差集
-var diff_set = set1 - set2       # {1}
+var diff_set = hash_set.subtract(set1, set2)       # {1}
 ```
 
 ## 2.2.3 类型检查
-
-### 使用 type() 函数
-
-`type()` 函数返回变量的类型字符串，主要用于调试输出。在实际编程中，更常用 `typeid` 进行类型检查。
-
-```covscript
-var num = 42
-var str = "hello"
-var arr = {1, 2, 3}
-
-# 获取类型
-var numType = type(num)
-var strType = type(str)
-var arrType = type(arr)
-
-# 打印类型信息
-system.out.println(numType)  # number
-system.out.println(strType)  # string
-system.out.println(arrType)  # array
-```
 
 ### 使用 typeid 运算符
 
@@ -278,6 +267,47 @@ else
 end
 ```
 
+### `is` 运算符
+
+```covscript
+var x = 10
+var y = "hello"
+
+if x is integer
+    system.out.println("x is a integer")
+end
+
+if x not float
+    system.out.println("x not a float")
+end
+
+if y is string
+    system.out.println("y is a string")
+end
+```
+
+仅在 ECS 中可用，在 OOP 中可以方便地判断继承关系
+
+### 使用 type() 函数
+
+`type()` 函数返回变量的类型字符串，主要用于调试输出。在实际编程中，更常用 `typeid` 进行类型检查。
+
+```covscript
+var num = 42
+var str = "hello"
+var arr = {1, 2, 3}
+
+# 获取类型
+var numType = type(num)
+var strType = type(str)
+var arrType = type(arr)
+
+# 打印类型信息
+system.out.println(numType)  # number
+system.out.println(strType)  # string
+system.out.println(arrType)  # array
+```
+
 ### 类型转换
 
 ```covscript
@@ -291,6 +321,21 @@ var n = to_integer(s)        # 123
 
 # 转换为浮点数
 var f = to_number("3.14")    # 3.14
+```
+
+在 ECS 中有更方便的方式
+
+```covscript
+# 转换为字符串
+var num = 42
+var str = num as string     # "42"
+
+# 转换为整数
+var s = "123"
+var n = s as integer        # 123
+
+# 转换为浮点数
+var f = "3.14" as number   # 3.14
 ```
 
 ## 类型系统注意事项
