@@ -151,7 +151,7 @@ system.out.println("'" + trimmed + "'")  # "hello"
 
 # 字符串分割
 var csv = "apple,banana,orange"
-var fruits = csv.split({(',')})
+var fruits = csv.split({','})
 foreach fruit in fruits
     system.out.println(fruit)
 end
@@ -525,7 +525,7 @@ end
 ```covscript
 # 字符串分割（使用内置函数）
 var text = "apple,banana,orange"
-var items = text.split({(',')})
+var items = text.split({','})
 foreach item in items
     system.out.println(item)
 end
@@ -809,7 +809,7 @@ function readConfig(filename)
             end
             
             # 解析配置行
-            var parts = trimmed.split({('=')})
+            var parts = trimmed.split({'='})
             if parts.size == 2
                 config.insert(parts[0].trim(), parts[1].trim())
             end
