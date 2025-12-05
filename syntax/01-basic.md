@@ -57,8 +57,11 @@ var x = 10
 constant y = 20
 var z = 30
 
-# 链式赋值
-var p = var q = var r = 0
+# 注意：CovScript 不支持链式声明
+# 需要分别声明每个变量
+var p = 0
+var q = 0
+var r = 0
 ```
 
 ## 2.1.5 语句结束规则
@@ -91,5 +94,5 @@ var userName = "Alice"
 # 不合法的变量名示例
 # var 2data = 1      # 不能以数字开头
 # var my-var = 2     # 不能包含连字符
-# var var = 3        # 不能使用关键字
+# var function = 3   # 不能使用关键字（如 function, var, if 等）
 ```

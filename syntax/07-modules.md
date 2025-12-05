@@ -24,7 +24,7 @@ package math_utils
     
     function power(base, exponent)
         var result = 1
-        for var i = 0; i < exponent; ++i
+        for i=0,i < exponent,++i
             result *= base
         end
         return result
@@ -239,7 +239,7 @@ package string_utils
     # 字符串工具函数
     function reverse(str)
         var result = ""
-        for var i = str.size() - 1; i >= 0; --i
+        for i=str.size() - 1,i >= 0,--i
             result += str[i]
         end
         return result

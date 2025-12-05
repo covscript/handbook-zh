@@ -484,7 +484,7 @@ end
 # 低效：每次都复制迭代器
 function inefficientSum(list)
     var total = 0
-    for var it = list.begin(); it != list.end(); it = it.next()
+    for it=list.begin(),it != list.end(),it = it.next()
         total += it.data()
     end
     return total
@@ -542,7 +542,7 @@ foreach item in list
 end
 
 # 需要索引或修改：使用传统循环
-for var i = 0; i < list.size(); ++i
+for i=0,i < list.size(),++i
     var item = list[i]
     # 处理 item
 end

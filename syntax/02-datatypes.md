@@ -38,7 +38,7 @@ var inverted = !true        # false
 
 ### 空值类型 (Null)
 
-使用 `null` 表示空值或无效值。
+使用 `null` 表示空值或无效值。在 CovScript 中，`null` 本质上是一个空指针。
 
 ```covscript
 var empty = null
@@ -76,7 +76,7 @@ var multiline = "First line\nSecond line"
 var greeting = "Hello, " + name + "!"
 
 # 字符串长度
-var len = str.size()
+var len = str.size  # 注意：size 不需要括号
 
 # 字符串索引（从0开始）
 var firstChar = str[0]  # 'H'
@@ -101,7 +101,7 @@ var second = arr[1]     # 2
 arr[0] = 10
 
 # 获取数组大小
-var size = arr.size()   # 5
+var size = arr.size   # 5，注意 size 不需要括号
 ```
 
 ### 列表 (List)
@@ -116,6 +116,9 @@ var list = new list
 list.push_back(1)
 list.push_back(2)
 list.push_back(3)
+
+# 也可以使用 append 方法
+list.append(4)
 
 # 访问元素
 var first = list.front()
@@ -135,12 +138,12 @@ end
 键值对存储两个关联的值。
 
 ```covscript
-# 创建键值对
-var pair = new pair(1, "one")
+# 创建键值对（使用冒号运算符）
+var pair = 1:"one"
 
-# 访问元素
-var key = pair.first
-var value = pair.second
+# 访问元素（可以使用 .first/.second 或 .key/.value）
+var key = pair.first    # 或 pair.key
+var value = pair.second # 或 pair.value
 
 # 修改元素
 pair.first = 2
@@ -160,8 +163,12 @@ map.insert("name", "Alice")
 map.insert("age", 25)
 map.insert("city", "Shanghai")
 
-# 访问元素
+# 访问元素（可以使用 .at 或下标语法）
 var name = map.at("name")
+var age = map["age"]        # 也可以使用下标访问
+
+# 对于字符串键，还可以使用点运算符
+var city = map.city
 
 # 检查键是否存在
 if map.exist("age")
@@ -200,14 +207,34 @@ end
 set.erase(3)
 
 # 获取集合大小
-var size = set.size()
+var size = set.size
+
+# 集合运算（交集、并集、补集）
+var set1 = new hash_set
+set1.insert(1)
+set1.insert(2)
+set1.insert(3)
+
+var set2 = new hash_set
+set2.insert(2)
+set2.insert(3)
+set2.insert(4)
+
+# 并集
+var union_set = set1 | set2      # {1, 2, 3, 4}
+
+# 交集
+var intersect_set = set1 & set2  # {2, 3}
+
+# 差集
+var diff_set = set1 - set2       # {1}
 ```
 
 ## 2.2.3 类型检查
 
 ### 使用 type() 函数
 
-`type()` 函数返回变量的类型对象。
+`type()` 函数返回变量的类型字符串，主要用于调试输出。在实际编程中，更常用 `typeid` 进行类型检查。
 
 ```covscript
 var num = 42

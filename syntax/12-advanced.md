@@ -25,7 +25,7 @@ end)
 # 复杂的 do 表达式
 var value = do
     var sum = 0
-    for var i = 1; i <= 10; ++i
+    for i=1,i <= 10,++i
         sum += i
     end
     sum
@@ -566,7 +566,7 @@ end
 function reverse(str)
     # 反转实现
     var result = ""
-    for var i = str.size() - 1; i >= 0; --i
+    for i=str.size() - 1,i >= 0,--i
         result += str[i]
     end
     return result

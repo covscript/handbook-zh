@@ -208,27 +208,27 @@ end
 
 ### for 循环
 
-用于固定次数的循环。
+用于固定次数的循环。注意：CovScript 的 `for` 循环使用逗号分隔，不使用 `var` 关键字。
 
 ```covscript
-# 基本 for 循环
-for var i = 0; i < 5; ++i
+# 基本 for 循环（使用逗号分隔）
+for i=0,i<5,++i
     system.out.println("Iteration: " + to_string(i))
 end
 
 # 步长不为1的循环
-for var i = 0; i < 10; i += 2
+for i=0,i<10,i+=2
     system.out.println(i)  # 0, 2, 4, 6, 8
 end
 
 # 倒序循环
-for var i = 10; i > 0; --i
+for i=10,i>0,--i
     system.out.println(i)
 end
 
 # 嵌套循环
-for var i = 1; i <= 3; ++i
-    for var j = 1; j <= 3; ++j
+for i=1,i<=3,++i
+    for j=1,j<=3,++j
         system.out.println(to_string(i) + " * " + to_string(j) + " = " + to_string(i * j))
     end
 end
@@ -280,7 +280,7 @@ end
 
 ```covscript
 # 跳过偶数
-for var i = 1; i <= 10; ++i
+for i=1,i<=10,++i
     if i % 2 == 0
         continue
     end
@@ -312,8 +312,8 @@ foreach num in numbers
 end
 
 # 在嵌套循环中使用（只退出内层循环）
-for var i = 0; i < 5; ++i
-    for var j = 0; j < 5; ++j
+for i=0,i<5,++i
+    for j=0,j<5,++j
         if j == 3
             break  # 只退出内层循环
         end

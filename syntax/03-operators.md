@@ -78,6 +78,31 @@ var lessOrEqual = (x <= 20)      # true
 
 逻辑运算符用于布尔逻辑运算。
 
+### 运算符重载
+
+CovScript 支持为自定义类型重载运算符。结构体可以定义 `+`, `-`, `*`, `/`, `==`, `!=` 等运算符的行为。
+
+```covscript
+struct Vector
+    var x = 0
+    var y = 0
+    
+    # 重载加法运算符
+    function operator+(other)
+        return new Vector {x: this.x + other.x, y: this.y + other.y}
+    end
+    
+    # 重载乘法运算符（标量乘法）
+    function operator*(scalar)
+        return new Vector {x: this.x * scalar, y: this.y * scalar}
+    end
+end
+
+var v1 = new Vector {x: 1, y: 2}
+var v2 = new Vector {x: 3, y: 4}
+var v3 = v1 + v2  # 调用重载的 + 运算符
+```
+
 ### 逻辑与（AND）
 
 ```covscript
@@ -167,9 +192,9 @@ num %= 4            # num = num % 4, 结果为 2
 
 ## 2.3.5 特殊运算符
 
-### 冒号运算符（:）
+### 点运算符（.）
 
-冒号运算符用于访问命名空间和包的成员。
+点运算符用于访问命名空间、包的成员，以及对象的属性和方法。
 
 ```covscript
 # 访问命名空间成员
@@ -180,32 +205,55 @@ math.abs(-5)
 
 # 链式访问
 system.console.terminal.clear()
+
+# 访问哈希映射（字符串键）
+var map = new hash_map
+map.insert("name", "Alice")
+var name = map.name  # 等价于 map["name"]
+```
+
+### 冒号运算符（:）
+
+冒号运算符用于创建键值对。
+
+```covscript
+# 创建键值对
+var pair = "key":"value"
+var numPair = 1:100
+
+# 在数组中使用
+var pairs = {1:"one", 2:"two", 3:"three"}
 ```
 
 ### 箭头运算符（->）
 
-箭头运算符用于访问指针指向的对象的成员。
+箭头运算符用于访问指针指向的对象的成员。注意：在 CovScript 中，`new` 创建的是普通对象（引用），`gcnew` 创建的才是指针。
 
 ```covscript
-# 结构体或类的指针访问
-var obj = new MyClass()
-var ptr = obj
+# 使用 gcnew 创建指针
+struct MyClass
+    var value = 0
+    function method()
+        system.out.println("Method called")
+    end
+end
 
-# 使用箭头访问成员
+var ptr = gcnew MyClass
+ptr->value = 10
 ptr->method()
-ptr->property = 10
 ```
 
 ### 解引用运算符（*）
 
-解引用运算符用于获取指针指向的值。
+解引用运算符用于获取指针指向的值。使用 `gcnew` 创建指针。
 
 ```covscript
-var value = 42
-var ptr = gcnew value
+# 使用 gcnew 创建指针
+var ptr = gcnew number
+*ptr = 42
 
-# 解引用
-var dereferenced = *ptr  # 42
+# 解引用读取值
+var value = *ptr  # 42
 
 # 修改指针指向的值
 *ptr = 100
@@ -213,16 +261,16 @@ var dereferenced = *ptr  # 42
 
 ### 取址运算符（&）
 
-取址运算符用于获取变量的引用。
+取址运算符用于获取变量的引用（指针）。
 
 ```covscript
 var x = 10
 
-# 获取引用
-var ref = &x
+# 获取引用（指针）
+var ptr = &x
 
-# 修改引用影响原变量
-ref = 20
+# 通过指针修改值
+*ptr = 20
 system.out.println(x)  # 20
 ```
 

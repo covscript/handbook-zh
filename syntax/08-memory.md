@@ -200,7 +200,7 @@ system.out.println("List2 size: " + to_string(list2.size()))  # 3
 ```covscript
 function createLargeList()
     var list = new list
-    for var i = 0; i < 1000; ++i
+    for i=0,i < 1000,++i
         list.push_back(i)
     end
     return move(list)  # 移动而不是拷贝
@@ -408,7 +408,7 @@ sp1.release()
 var list = new list
 # list.reserve(1000)  # 预留空间
 
-for var i = 0; i < 1000; ++i
+for i=0,i < 1000,++i
     list.push_back(i)
 end
 ```
@@ -423,7 +423,7 @@ class ObjectPool
     
     function construct()
         # 预创建一些对象
-        for var i = 0; i < 10; ++i
+        for i=0,i < 10,++i
             this.available.push_back(new MyObject())
         end
     end
@@ -469,7 +469,7 @@ end
 
 # 避免在循环中创建大对象
 var cache = new hash_map
-for var i = 0; i < 1000; ++i
+for i=0,i < 1000,++i
     if !cache.exist(i)
         cache.insert(i, createExpensiveObject(i))
     end

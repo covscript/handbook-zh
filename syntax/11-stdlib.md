@@ -22,7 +22,7 @@ system.out.println("Name: " + name + ", Age: " + to_string(age))
 
 # 格式化输出
 system.out.print("Loading")
-for var i = 0; i < 3; ++i
+for i=0,i < 3,++i
     system.out.print(".")
     runtime.sleep(500)
 end
@@ -93,7 +93,7 @@ appendFile.close()
 var str = "Hello, World!"
 
 # 获取长度
-var len = str.size()
+var len = str.size
 system.out.println("Length: " + to_string(len))
 
 # 获取字符
@@ -362,7 +362,7 @@ system.out.println("Done!")
 # 计时器
 var startTime = runtime.time()
 # 执行某些操作
-for var i = 0; i < 1000000; ++i
+for i=0,i < 1000000,++i
     var x = i * i
 end
 var endTime = runtime.time()
@@ -430,21 +430,21 @@ import fiber
 
 # 创建协程
 var f = fiber.create([]() {
-    for var i = 0; i < 5; ++i
+    for i=0,i < 5,++i
         system.out.println("Fiber: " + to_string(i))
         fiber.yield()  # 让出执行权
     end
 })
 
 # 运行协程
-for var i = 0; i < 5; ++i
+for i=0,i < 5,++i
     system.out.println("Main: " + to_string(i))
     fiber.resume(f)  # 恢复协程
 end
 
 # 带参数的协程
 var task = fiber.create([](name) {
-    for var i = 0; i < 3; ++i
+    for i=0,i < 3,++i
         system.out.println(name + ": " + to_string(i))
         fiber.yield()
     end
@@ -470,7 +470,7 @@ constant BUFFER_SIZE = compiledValue
 
 # 编译时生成代码
 @begin
-for var i = 0; i < 5; ++i
+for i=0,i < 5,++i
     # 生成变量声明
     # var var${i} = ${i * 10}
 end
@@ -521,7 +521,7 @@ end
 
 function reverse(container)
     var result = new list
-    for var i = container.size() - 1; i >= 0; --i
+    for i=container.size() - 1,i >= 0,--i
         result.push_back(container[i])
     end
     return result
@@ -596,7 +596,7 @@ function trim(str)
     
     # 提取子串
     var result = ""
-    for var i = start; i <= end; ++i
+    for i=start,i <= end,++i
         result += str[i]
     end
     

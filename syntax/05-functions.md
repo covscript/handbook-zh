@@ -73,11 +73,12 @@ printInfo("Alice", 25, "Shanghai", "China")
 
 ## 2.5.4 可变参数
 
-使用 `...` 语法定义可变参数函数。
+使用 `...` 语法定义可变参数函数。可变参数实际上是一个数组，包含所有传入的参数。
 
 ```covscript
 # 可变参数函数
 function sum(...args)
+    # args 是一个数组，包含所有传入的参数
     var total = 0
     foreach arg in args
         total += arg
@@ -166,19 +167,27 @@ var squared = map(numbers, [](x) -> x * x)
 
 ## 2.5.6 函数参数类型标注
 
-CovScript 支持为函数参数添加类型标注（主要用于文档和可读性）。
+**注意：类型标注是 CovScript 4 (ECS) 的特性**，用于强制类型检查，会带来一定的运行时开销。
 
 ```covscript
-# 带类型标注的函数（注释形式）
-function calculateDiscount(price, discountRate)
-    # price: number - 商品原价
-    # discountRate: number - 折扣率 (0-1)
-    # returns: number - 折扣后价格
-    
+# ECS 中的类型标注（强制类型检查）
+function calculateDiscount(price:number, discountRate:number):number
     return price * (1 - discountRate)
 end
 
 var finalPrice = calculateDiscount(100, 0.2)  # 80
+
+# 如果传入错误类型，会抛出类型错误
+# calculateDiscount("100", 0.2)  # 错误！
+
+# CSC 中使用注释形式说明类型（仅文档用途）
+function calculateTax(amount, rate)
+    # amount: number - 金额
+    # rate: number - 税率
+    # returns: number - 税额
+    
+    return amount * rate
+end
 ```
 
 ## 2.5.7 返回值
