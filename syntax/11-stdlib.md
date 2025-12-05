@@ -125,7 +125,7 @@ end
 var greeting = "Hello" + ", " + "World" + "!"
 
 # 构建复杂字符串
-var parts = {("one"), ("two"), ("three")}
+var parts = {"one", "two", "three"}
 
 # 使用 join 拼接数组
 var result = parts.join(", ")
@@ -531,7 +531,7 @@ foreach item in items
 end
 
 # 数组连接（使用内置函数）
-var words = {("Hello"), ("World"), ("!")}
+var words = {"Hello", "World", "!"}
 var sentence = words.join(" ")
 system.out.println(sentence)
 
