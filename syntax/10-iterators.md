@@ -527,13 +527,13 @@ for i=0,i < list.size,++i
 end
 
 # 需要精确控制：使用迭代器
-var it = list.begin()
-var itEnd = list.end()
+var it = list.begin
+var itEnd = list.end
 loop
     if it == itEnd
         break
     end
     # 精确控制迭代过程
-    it = it.next()
+    it.next()
 end
 ```
