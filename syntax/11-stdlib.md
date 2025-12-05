@@ -22,7 +22,7 @@ system.out.println("Name: " + name + ", Age: " + to_string(age))
 
 # 格式化输出
 system.out.print("Loading")
-for i=0,i < 3,++i
+for i = 0, i < 3, ++i
     system.out.print(".")
     runtime.sleep(500)
 end
@@ -362,7 +362,7 @@ system.out.println("Done!")
 # 计时器
 var startTime = runtime.time()
 # 执行某些操作
-for i=0,i < 1000000,++i
+for i = 0, i < 1000000, ++i
     var x = i * i
 end
 var endTime = runtime.time()
@@ -523,7 +523,7 @@ end
 
 function reverse(container)
     var result = new list
-    for i=container.size - 1,i >= 0,--i
+    for i = container.size - 1, i >= 0, --i
         result.push_back(container[i])
     end
     return result
@@ -598,7 +598,7 @@ function trim(str)
     
     # 提取子串
     var result = ""
-    for i=start,i <= end,++i
+    for i = start, i <= end, ++i
         result += str[i]
     end
     
@@ -813,7 +813,7 @@ class Logger
 end
 
 # 使用日志系统
-var logger = new Logger("app.log")
+var logger = new Logger{"app.log"}
 logger.setLevel("INFO")
 
 logger.debug("这条不会显示")

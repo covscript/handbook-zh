@@ -16,7 +16,7 @@ class SimpleHTTPServer
     var port = 8080
     var running = false
     
-    function construct(p)
+    function construct(p) override
         this.port = p
     end
     
@@ -164,7 +164,7 @@ class SimpleHTTPServer
 end
 
 # 启动服务器
-var server = new SimpleHTTPServer(8080)
+var server = new SimpleHTTPServer{8080}
 server.start()
 ```
 
@@ -353,7 +353,7 @@ class ChatRoom
 end
 
 # 启动聊天室
-var chatRoom = new ChatRoom()
+var chatRoom = new ChatRoom{}
 chatRoom.start(9999)
 ```
 
@@ -426,7 +426,7 @@ class ChatClient
 end
 
 # 使用客户端
-var client = new ChatClient()
+var client = new ChatClient{}
 try
     client.connect("127.0.0.1", 9999)
     client.run()
@@ -449,7 +449,7 @@ class Point
     var x = 0
     var y = 0
     
-    function construct(px, py)
+    function construct(px, py) override
         this.x = px
         this.y = py
     end
@@ -464,15 +464,15 @@ class Snake
     var direction = "RIGHT"
     var growing = false
     
-    function construct(startX, startY)
-        this.body.push_back(new Point(startX, startY))
-        this.body.push_back(new Point(startX - 1, startY))
-        this.body.push_back(new Point(startX - 2, startY))
+    function construct(startX, startY) override
+        this.body.push_back(new Point{startX, startY})
+        this.body.push_back(new Point{startX - 1, startY})
+        this.body.push_back(new Point{startX - 2, startY})
     end
     
     function move()
         var head = this.body[0]
-        var newHead = new Point(head.x, head.y)
+        var newHead = new Point{head.x, head.y}
         
         # 根据方向移动
         if this.direction == "UP"
@@ -539,8 +539,8 @@ class SnakeGame
     var score = 0
     var gameOver = false
     
-    function construct()
-        this.snake = new Snake(this.width / 2, this.height / 2)
+    function construct() override
+        this.snake = new Snake{this.width / 2, this.height / 2}
         this.spawnFood()
     end
     
@@ -548,7 +548,7 @@ class SnakeGame
         # 简单的随机食物生成
         var x = to_integer(runtime.time() % this.width)
         var y = to_integer((runtime.time() / 100) % this.height)
-        this.food = new Point(x, y)
+        this.food = new Point{x, y}
     end
     
     function update()
@@ -588,7 +588,7 @@ class SnakeGame
         for y = 0, y < this.height, ++y
             var line = ""
             for x = 0, x < this.width, ++x
-                var point = new Point(x, y)
+                var point = new Point{x, y}
                 var isSnake = false
                 
                 # 检查是否是蛇身
@@ -653,7 +653,7 @@ class SnakeGame
 end
 
 # 启动游戏
-var game = new SnakeGame()
+var game = new SnakeGame{}
 game.run()
 ```
 
@@ -760,7 +760,7 @@ class GuessNumberGame
 end
 
 # 启动游戏
-var game = new GuessNumberGame()
+var game = new GuessNumberGame{}
 game.start()
 ```
 
@@ -776,7 +776,7 @@ import csdbc
 class TaskManager
     var db = null
     
-    function construct(dbPath)
+    function construct(dbPath) override
         this.db = csdbc.connect("sqlite", dbPath)
         this.initDatabase()
     end
@@ -995,7 +995,7 @@ class TaskManager
 end
 
 # 使用任务管理器
-var taskMgr = new TaskManager("tasks.db")
+var taskMgr = new TaskManager{"tasks.db"}
 
 # 添加任务
 var task1 = taskMgr.addTask("完成报告", "需要在周五前完成月度报告", 5)
@@ -1041,7 +1041,7 @@ class LogAnalyzer
     var errors = new list
     var warnings = new list
     
-    function construct(filename)
+    function construct(filename) override
         this.logFile = filename
     end
     
@@ -1165,7 +1165,7 @@ class LogAnalyzer
 end
 
 # 使用日志分析器
-var analyzer = new LogAnalyzer("application.log")
+var analyzer = new LogAnalyzer{"application.log"}
 
 if analyzer.analyze()
     analyzer.generateReport()
@@ -1184,7 +1184,7 @@ class FileRenamer
     var replacement = ""
     var dryRun = true
     
-    function construct(dir)
+    function construct(dir) override
         this.directory = dir
     end
     
@@ -1283,7 +1283,7 @@ class FileRenamer
 end
 
 # 使用文件重命名工具
-var renamer = new FileRenamer("./documents")
+var renamer = new FileRenamer{"./documents"}
 
 # 设置重命名规则
 renamer.setPattern("old", "new")

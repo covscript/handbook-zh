@@ -25,7 +25,7 @@ end)
 # 复杂的 do 表达式
 var value = do
     var sum = 0
-    for i=1,i <= 10,++i
+    for i = 1, i <= 10, ++i
         sum += i
     end
     sum
@@ -193,7 +193,7 @@ end
 
 # 使用流式API
 var numbers = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
-var result = new Query(numbers)
+var result = new Query{numbers}
     .where([](x) -> x % 2 == 0)      # 筛选偶数
     .select([](x) -> x * x)           # 平方
     .toList()
@@ -353,12 +353,12 @@ class Vector
     
     # 重载加法（概念示例）
     function add(other)
-        return new Vector(this.x + other.x, this.y + other.y)
+        return new Vector{this.x + other.x, this.y + other.y}
     end
     
     # 重载乘法
     function multiply(scalar)
-        return new Vector(this.x * scalar, this.y * scalar)
+        return new Vector{this.x * scalar, this.y * scalar}
     end
     
     function toString()
@@ -366,8 +366,8 @@ class Vector
     end
 end
 
-var v1 = new Vector(1, 2)
-var v2 = new Vector(3, 4)
+var v1 = new Vector{1, 2}
+var v2 = new Vector{3, 4}
 var v3 = v1.add(v2)
 var v4 = v1.multiply(2)
 
@@ -504,11 +504,11 @@ class Lazy
 end
 
 # 使用惰性求值
-var expensive = new Lazy([]() {
+var expensive = new Lazy{[]() {
     system.out.println("Computing expensive value...")
     runtime.sleep(2000)
     return 42
-})
+}}
 
 system.out.println("Created lazy value")
 # 这里不会计算
@@ -544,7 +544,7 @@ class Pipeline
 end
 
 # 使用管道
-var result = new Pipeline(10)
+var result = new Pipeline{10}
     .pipe([](x) -> x * 2)      # 20
     .pipe([](x) -> x + 5)      # 25
     .pipe([](x) -> x * x)      # 625
@@ -566,13 +566,13 @@ end
 function reverse(str)
     # 反转实现
     var result = ""
-    for i=str.size - 1,i >= 0,--i
+    for i = str.size - 1, i >= 0, --i
         result += str[i]
     end
     return result
 end
 
-var processed = new Pipeline("  hello world  ")
+var processed = new Pipeline{"  hello world  "}
     .pipe(trim)
     .pipe(uppercase)
     .pipe(reverse)
@@ -649,7 +649,7 @@ class QueryBuilder
 end
 
 # 使用构建器
-var query = new QueryBuilder()
+var query = new QueryBuilder{}
     .from("users")
     .select({"id", "name", "email"})
     .where("age > 18")

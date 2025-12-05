@@ -253,13 +253,13 @@ list.push_back(2)
 list.push_back(3)
 
 # 使用 foreach（推荐）
-foreach item in list
+foreach item in lst
     system.out.println(item)
 end
 
 # 等价的迭代器写法
-var it = list.begin
-var itEnd = list.end
+var it = lst.begin
+var itEnd = lst.end
 loop
     if it == itEnd
         break
@@ -461,18 +461,18 @@ end
 
 ```covscript
 # 低效：每次都复制迭代器
-function inefficientSum(list)
+function inefficientSum(lst)
     var total = 0
-    for it=list.begin,it != list.end,it.next()
+    for it = lst.begin, it != lst.end, it.next()
         total += it.data
     end
     return total
 end
 
 # 高效：减少迭代器操作
-function efficientSum(list)
+function efficientSum(lst)
     var total = 0
-    foreach item in list
+    foreach item in lst
         total += item
     end
     return total
@@ -483,13 +483,13 @@ end
 
 ```covscript
 # 好的实践：缓存结束迭代器
-var list = new list
-list.push_back(1)
-list.push_back(2)
-list.push_back(3)
+var lst = new list
+lst.push_back(1)
+lst.push_back(2)
+lst.push_back(3)
 
-var it = list.begin
-var itEnd = list.end  # 缓存
+var it = lst.begin
+var itEnd = lst.end  # 缓存
 
 loop
     if it == itEnd
@@ -510,25 +510,25 @@ end
 
 ```covscript
 # 推荐的迭代方式
-var list = new list
-list.push_back(1)
-list.push_back(2)
-list.push_back(3)
+var lst = new list
+lst.push_back(1)
+lst.push_back(2)
+lst.push_back(3)
 
 # 简单遍历：使用 foreach
-foreach item in list
+foreach item in lst
     system.out.println(item)
 end
 
 # 需要索引或修改：使用传统循环
-for i=0,i < list.size,++i
-    var item = list[i]
+for i = 0, i < lst.size, ++i
+    var item = lst[i]
     # 处理 item
 end
 
 # 需要精确控制：使用迭代器
-var it = list.begin
-var itEnd = list.end
+var it = lst.begin
+var itEnd = lst.end
 loop
     if it == itEnd
         break
