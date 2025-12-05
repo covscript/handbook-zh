@@ -190,7 +190,8 @@ end
 
 # 也可以从数组快捷创建
 # @begin @end 是预处理指令，用于告诉编译器这里要多行
-# ECS 可自动处理跨行逻辑
+# **ECS 与 CSC 区别：** ECS 可自动处理跨行逻辑，无需使用 @begin/@end
+# 以下写法在 CSC 中需要 @begin/@end，在 ECS 中可直接换行
 @begin
 map = {
     "name":"Alice",
@@ -286,7 +287,7 @@ if y is string
 end
 ```
 
-仅在 ECS 中可用，在 OOP 中可以方便地判断继承关系
+**仅 ECS 支持：** `is` 运算符是 CovScript 4 (ECS) 的特性，CSC 中需要使用 `typeid` 进行类型检查。在面向对象编程中，`is` 运算符可以方便地判断继承关系
 
 ### 使用 type() 函数
 
@@ -323,9 +324,10 @@ var n = to_integer(s)        # 123
 var f = to_number("3.14")    # 3.14
 ```
 
-在 ECS 中有更方便的方式
+**ECS 与 CSC 区别：** ECS 提供了更简洁的 `as` 类型转换语法
 
 ```covscript
+# 仅 ECS 支持的 as 语法
 # 转换为字符串
 var num = 42
 var str = num as string     # "42"
@@ -337,6 +339,8 @@ var n = s as integer        # 123
 # 转换为浮点数
 var f = "3.14" as number   # 3.14
 ```
+
+**说明：** `as` 运算符提供了更自然的类型转换语法，但仅在 ECS 中可用。CSC 中必须使用 `to_string()`、`to_integer()` 等函数
 
 ## 类型系统注意事项
 

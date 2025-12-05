@@ -2,6 +2,8 @@
 
 CovScript 提供了丰富的标准库，涵盖输入输出、字符串操作、数学运算、系统操作等多个方面。
 
+**重要说明：** 标准库 API 在 ECS 和 CSC 中基本一致，除非特别标注，否则所有示例在两个版本中都可以使用。标准库的具体实现可以参考 [type_ext.cpp](https://github.com/covscript/covscript/blob/master/sources/instance/type_ext.cpp)。
+
 ## 2.11.1 输入输出
 
 ### system.out - 标准输出
@@ -87,34 +89,45 @@ appendFile.close()
 
 ## 2.11.2 字符串操作
 
+CovScript 的字符串类型提供了丰富的内置方法，支持常见的字符串操作。
+
 ### 基本字符串方法
 
 ```covscript
 var str = "Hello, World!"
 
-# 获取长度
+# 获取长度（size 是属性，不是方法）
 var len = str.size
 system.out.println("Length: " + to_string(len))
 
-# 获取字符
-var firstChar = str[0]
-var lastChar = str[str.size - 1]
+# 获取字符（使用下标访问）
+var firstChar = str[0]      # 'H'
+var lastChar = str[str.size - 1]  # '!'
 
-# 字符串切片
-var sub = str.substr(0, 5)  # "Hello"
+# 字符串切片（substr(起始位置, 长度)）
+var sub = str.substr(0, 5)  # "Hello" - 从位置0开始，提取5个字符
+var sub2 = str.substr(7, 5) # "World" - 从位置7开始，提取5个字符
 system.out.println("Substring: " + sub)
 
-# 查找子串
+# 查找子串（find(子串, 起始位置)，返回位置或-1）
 var pos = str.find("World", 0)
 if pos != -1
     system.out.println("Found at position: " + to_string(pos))
+else
+    system.out.println("Not found")
 end
 
-# 字符串比较
+# 字符串比较（使用 == 运算符）
 var str1 = "abc"
 var str2 = "abc"
 if str1 == str2
     system.out.println("Strings are equal")
+end
+
+# 检查字符串是否为空
+var empty = ""
+if empty.empty()
+    system.out.println("String is empty")
 end
 ```
 
