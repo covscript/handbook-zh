@@ -24,7 +24,7 @@ system.out.println("Name: " + name + ", Age: " + to_string(age))
 system.out.print("Loading")
 for i = 0, i < 3, ++i
     system.out.print(".")
-    runtime.sleep(500)
+    runtime.delay(500)
 end
 system.out.println(" Done!")
 ```
@@ -379,9 +379,9 @@ foreach arg in args
     system.out.println("Arg: " + arg)
 end
 
-# 执行系统命令（如果支持）
-# var result = system.run("ls -l")
-# system.out.println("Exit code: " + to_string(result))
+# 执行系统命令
+var result = system.run("ls -l")
+system.out.println("Exit code: " + to_string(result))
 ```
 
 ## 2.11.7 上下文操作（context）
@@ -394,8 +394,7 @@ var path = runtime.get_import_path()
 system.out.println("Import path: " + path)
 
 # 动态导入模块
-# var module = runtime.import(path, "module_name")
-# var module = runtime.source_import("path/to/file.csc")
+var module = runtime.source_import("path/to/file.csc")
 ```
 
 ### 变量管理

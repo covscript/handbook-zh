@@ -381,7 +381,7 @@ end
 
 # 使用装饰器
 function slowFunction(n)
-    runtime.sleep(1000)
+    runtime.delay(1000)
     return n * n
 end
 
@@ -416,7 +416,7 @@ end
 # 使用惰性求值
 var expensive = new Lazy{[]() {
     system.out.println("Computing expensive value...")
-    runtime.sleep(2000)
+    runtime.delay(2000)
     return 42
 }}
 

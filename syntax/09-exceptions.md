@@ -334,7 +334,7 @@ function connectToServer(host, port, maxRetries)
             end
             
             system.out.println("Retry " + to_string(retries) + "...")
-            runtime.sleep(1000)  # 等待1秒后重试
+            runtime.delay(1000)  # 等待1秒后重试
         end
     end
 end
@@ -448,7 +448,7 @@ class HttpClient
                 end
                 
                 system.out.println("Retry " + to_string(attempts) + "...")
-                runtime.sleep(1000)
+                runtime.delay(1000)
             end
         end
     end

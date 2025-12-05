@@ -129,7 +129,7 @@ function udpClient()
         var response = result[0]
         system.out.println("收到响应: " + response)
         
-        runtime.sleep(1000)
+        runtime.delay(1000)
     end
     
     sock.close()
@@ -711,7 +711,7 @@ for frame = 0, frame < 10, ++frame
     renderSystem.update(world, deltaTime)
     
     system.out.println("--- 帧 " + to_string(frame) + " ---")
-    runtime.sleep(16)
+    runtime.delay(16)
 end
 ```
 
@@ -808,7 +808,7 @@ for tick = 0, tick < 100, ++tick
     enemySystem.update(gameWorld, dt)
     collisionSystem.update(gameWorld, dt)
     
-    runtime.sleep(16)
+    runtime.delay(16)
 end
 ```
 
