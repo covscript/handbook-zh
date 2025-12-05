@@ -100,11 +100,12 @@ system.out.println("Length: " + to_string(len))
 var firstChar = str[0]
 var lastChar = str[str.size - 1]
 
-# 字符串切片（如果支持）
-# var sub = str.substr(0, 5)  # "Hello"
+# 字符串切片
+var sub = str.substr(0, 5)  # "Hello"
+system.out.println("Substring: " + sub)
 
 # 查找子串
-var pos = str.find("World")
+var pos = str.find("World", 0)
 if pos != -1
     system.out.println("Found at position: " + to_string(pos))
 end
@@ -124,42 +125,36 @@ end
 var greeting = "Hello" + ", " + "World" + "!"
 
 # 构建复杂字符串
-var parts = new list
-parts.push_back("one")
-parts.push_back("two")
-parts.push_back("three")
+var parts = {("one"), ("two"), ("three")}
 
-var result = ""
-var first = true
-foreach part in parts
-    if !first
-        result += ", "
-    end
-    first = false
-    result += part
-end
+# 使用 join 拼接数组
+var result = parts.join(", ")
 system.out.println(result)  # "one, two, three"
 ```
 
 ### 字符串转换
 
 ```covscript
-# 大小写转换（需要自定义实现或使用库）
-function toUpperCase(str)
-    var result = ""
-    foreach ch in str
-        if ch >= 'a' && ch <= 'z'
-            result += to_string(ascii(ch) - 32)
-        else
-            result += ch
-        end
-    end
-    return result
-end
-
+# 大小写转换
 var text = "hello"
-var upper = toUpperCase(text)
+var upper = text.to_upper()
 system.out.println(upper)  # "HELLO"
+
+var text2 = "WORLD"
+var lower = text2.to_lower()
+system.out.println(lower)  # "world"
+
+# 字符串裁剪空白
+var text3 = "  hello  "
+var trimmed = text3.trim()
+system.out.println("'" + trimmed + "'")  # "hello"
+
+# 字符串分割
+var csv = "apple,banana,orange"
+var fruits = csv.split({(',')})
+foreach fruit in fruits
+    system.out.println(fruit)
+end
 ```
 
 ## 2.11.3 类型转换
@@ -229,8 +224,6 @@ system.out.println("Type of y: " + to_string(type(y)))
 ### 基本数学函数
 
 ```covscript
-
-
 # 绝对值
 var abs1 = math.abs(-10)
 system.out.println("abs(-10) = " + to_string(abs1))
@@ -249,22 +242,24 @@ var cos1 = math.cos(0)
 var tan1 = math.tan(0)
 
 # 对数
-var log1 = math.log(10)      # 自然对数
-var log10_1 = math.log10(100) # 以10为底的对数
+var ln1 = math.ln(10)         # 自然对数
+var log10_1 = math.log10(100)  # 以10为底的对数
+var log1 = math.log(2, 8)     # 以2为底8的对数
 ```
 
 ### 数学常量
 
 ```covscript
+# 数学常量
+var pi = math.constants.pi
+var e = math.constants.e
 
-
-# 常用常量
-constant PI = 3.14159265359
-constant E = 2.71828182846
+system.out.println("PI = " + to_string(pi))
+system.out.println("E = " + to_string(e))
 
 # 使用常量
-var circumference = 2 * PI * 5
-var area = PI * 5 * 5
+var circumference = 2 * pi * 5
+var area = pi * 5 * 5
 
 system.out.println("Circumference: " + to_string(circumference))
 system.out.println("Area: " + to_string(area))
@@ -273,18 +268,17 @@ system.out.println("Area: " + to_string(area))
 ### 随机数
 
 ```covscript
-
-
-# 生成随机数（如果 math 模块支持）
-var random1 = math.random()  # 0到1之间的随机数
+# 生成随机浮点数
+var random1 = math.rand(0, 1)  # 0到1之间的随机浮点数
+system.out.println("Random float: " + to_string(random1))
 
 # 生成指定范围的随机整数
-function randomInt(min, max)
-    return to_integer(math.random() * (max - min + 1)) + min
-end
-
-var dice = randomInt(1, 6)
+var dice = math.randint(1, 6)
 system.out.println("Dice roll: " + to_string(dice))
+
+# 生成随机浮点数
+var random2 = math.rand(10.5, 20.5)
+system.out.println("Random in range: " + to_string(random2))
 ```
 
 ## 2.11.5 系统操作
@@ -356,7 +350,7 @@ system.out.println("Timestamp: " + to_string(timestamp))
 
 # 暂停执行
 system.out.println("Waiting 2 seconds...")
-runtime.sleep(2000)  # 毫秒
+runtime.delay(2000)  # 毫秒
 system.out.println("Done!")
 
 # 计时器
@@ -380,14 +374,14 @@ function exitProgram(code)
 end
 
 # 获取命令行参数
-var args = runtime.args()
+var args = runtime.cmd_args()
 foreach arg in args
     system.out.println("Arg: " + arg)
 end
 
-# 执行系统命令
-var result = system.run("ls -l")
-system.out.println("Exit code: " + to_string(result))
+# 执行系统命令（如果支持）
+# var result = system.run("ls -l")
+# system.out.println("Exit code: " + to_string(result))
 ```
 
 ## 2.11.7 上下文操作（context）
@@ -396,16 +390,12 @@ system.out.println("Exit code: " + to_string(result))
 
 ```covscript
 # 获取当前导入路径
-var paths = runtime.get_import_path()
-foreach path in paths
-    system.out.println("Import path: " + path)
-end
+var path = runtime.get_import_path()
+system.out.println("Import path: " + path)
 
-# 添加导入路径
-runtime.add_import_path("/custom/modules")
-
-# 移除导入路径
-runtime.remove_import_path("/old/modules")
+# 动态导入模块
+# var module = runtime.import(path, "module_name")
+# var module = runtime.source_import("path/to/file.csc")
 ```
 
 ### 变量管理
@@ -533,77 +523,33 @@ end
 ### 字符串工具
 
 ```covscript
-function split(str, delimiter)
-    var result = new list
-    var current = ""
-    
-    foreach ch in str
-        if ch == delimiter
-            if current.size > 0
-                result.push_back(current)
-                current = ""
-            end
-        else
-            current += ch
-        end
-    end
-    
-    if current.size > 0
-        result.push_back(current)
-    end
-    
-    return result
+# 字符串分割（使用内置函数）
+var text = "apple,banana,orange"
+var items = text.split({(',')})
+foreach item in items
+    system.out.println(item)
 end
 
-function join(container, separator)
-    var result = ""
-    var first = true
-    
-    foreach item in container
-        if !first
-            result += separator
-        end
-        first = false
-        result += to_string(item)
-    end
-    
-    return result
+# 数组连接（使用内置函数）
+var words = {("Hello"), ("World"), ("!")}
+var sentence = words.join(" ")
+system.out.println(sentence)
+
+# 字符串裁剪（使用内置函数）
+var text2 = "  hello world  "
+var trimmed = text2.trim()
+system.out.println("'" + trimmed + "'")
+
+# 字符串查找和替换
+var str = "Hello World"
+var pos = str.find("World", 0)
+if pos != -1
+    system.out.println("Found at: " + to_string(pos))
 end
 
-function trim(str)
-    var start = 0
-    var end = str.size - 1
-    
-    # 去除开头空格
-    loop
-        if start >= str.size
-            break
-        end
-        if str[start] != ' ' && str[start] != '\t' && str[start] != '\n'
-            break
-        end
-        start += 1
-    end
-    
-    # 去除结尾空格
-    loop
-        if end < start
-            break
-        end
-        if str[end] != ' ' && str[end] != '\t' && str[end] != '\n'
-            break
-        end
-        end -= 1
-    end
-    
-    # 提取子串
-    var result = ""
-    for i = start, i <= end, ++i
-        result += str[i]
-    end
-    
-    return result
-end
+# 字符串子串
+var sub = str.substr(0, 5)
+system.out.println("Substring: " + sub)
 ```
 
 ## 2.11.12 更多实用示例
@@ -650,11 +596,11 @@ function writeCSV(filename, data, headers)
     
     try
         # 写入头部
-        file.println(join(headers, ","))
+        file.println(headers.join(","))
         
         # 写入数据
         foreach record in data
-            var values = new list
+            var values = new array
             foreach header in headers
                 if record.exist(header)
                     values.push_back(to_string(record[header]))
@@ -662,7 +608,7 @@ function writeCSV(filename, data, headers)
                     values.push_back("")
                 end
             end
-            file.println(join(values, ","))
+            file.println(values.join(","))
         end
     catch e
         system.out.println("写入 CSV 错误: " + e)
@@ -701,7 +647,7 @@ end
 var total = 100
 for i = 0, i <= total, ++i
     showProgress(i, total, 50)
-    runtime.sleep(50)
+    runtime.delay(50)
 end
 ```
 
@@ -721,7 +667,7 @@ function readINI(filename)
                 break
             end
             
-            line = trim(line)
+            line = line.trim()
             
             # 跳过空行和注释
             if line.empty || line[0] == '#' || line[0] == ';'
@@ -736,10 +682,10 @@ function readINI(filename)
                 end
             else
                 # 解析键值对
-                var eqPos = line.find('=')
+                var eqPos = line.find("=", 0)
                 if eqPos != -1
-                    var key = trim(line.substr(0, eqPos))
-                    var value = trim(line.substr(eqPos + 1))
+                    var key = line.substr(0, eqPos).trim()
+                    var value = line.substr(eqPos + 1, line.size - eqPos - 1).trim()
                     
                     if !config.exist(currentSection)
                         config.insert(currentSection, new hash_map)
@@ -857,15 +803,15 @@ function readConfig(filename)
             end
             
             # 跳过空行和注释
-            var trimmed = trim(line)
+            var trimmed = line.trim()
             if trimmed.empty || trimmed[0] == '#'
                 continue
             end
             
             # 解析配置行
-            var parts = split(trimmed, '=')
+            var parts = trimmed.split({('=')})
             if parts.size == 2
-                config.insert(trim(parts[0]), trim(parts[1]))
+                config.insert(parts[0].trim(), parts[1].trim())
             end
         end
         
