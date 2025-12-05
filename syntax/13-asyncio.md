@@ -457,7 +457,7 @@ class AsyncQueue
     var items = new list
     var maxSize = 10
     
-    function construct(size) override
+    function construct(size)
         this.maxSize = size
     end
     
@@ -675,7 +675,7 @@ class WorkerPool
     var activeWorkers = 0
     var taskQueue = new list
     
-    function construct(max) override
+    function construct(max)
         this.maxWorkers = max
     end
     

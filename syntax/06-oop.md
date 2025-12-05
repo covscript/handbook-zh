@@ -199,7 +199,7 @@ class Dog extends Animal
         system.out.println("Woof! Woof!")
     end
     
-    function fetch() override
+    function fetch()
         system.out.println(this.name + " is fetching the ball!")
     end
 end
@@ -217,7 +217,7 @@ class Cat extends Animal
         system.out.println("Meow! Meow!")
     end
     
-    function climb() override
+    function climb()
         system.out.println(this.name + " is climbing the tree!")
     end
 end

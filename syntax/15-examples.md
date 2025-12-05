@@ -16,7 +16,7 @@ class SimpleHTTPServer
     var port = 8080
     var running = false
     
-    function construct(p) override
+    function construct(p)
         this.port = p
     end
     
@@ -416,7 +416,7 @@ class Point
     var x = 0
     var y = 0
     
-    function construct(px, py) override
+    function construct(px, py)
         this.x = px
         this.y = py
     end
@@ -431,7 +431,7 @@ class Snake
     var direction = "RIGHT"
     var growing = false
     
-    function construct(startX, startY) override
+    function construct(startX, startY)
         this.body.push_back(new Point{startX, startY})
         this.body.push_back(new Point{startX - 1, startY})
         this.body.push_back(new Point{startX - 2, startY})
@@ -506,7 +506,7 @@ class SnakeGame
     var score = 0
     var gameOver = false
     
-    function construct() override
+    function construct()
         this.snake = new Snake{this.width / 2, this.height / 2}
         this.spawnFood()
     end
@@ -739,7 +739,7 @@ import csdbc
 class TaskManager
     var db = null
     
-    function construct(dbPath) override
+    function construct(dbPath)
         this.db = csdbc.connect("sqlite", dbPath)
         this.initDatabase()
     end
@@ -993,7 +993,7 @@ class LogAnalyzer
     var errors = new list
     var warnings = new list
     
-    function construct(filename) override
+    function construct(filename)
         this.logFile = filename
     end
     
@@ -1136,7 +1136,7 @@ class FileRenamer
     var replacement = ""
     var dryRun = true
     
-    function construct(dir) override
+    function construct(dir)
         this.directory = dir
     end
     
