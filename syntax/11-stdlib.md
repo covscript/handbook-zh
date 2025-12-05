@@ -48,7 +48,7 @@ system.out.println("Enter text (empty line to finish):")
 var lines = new list
 loop
     var line = system.in.getline()
-    if line.empty()
+    if line.empty
         break
     end
     lines.push_back(line)
@@ -636,7 +636,7 @@ function readConfig(filename)
             
             # 跳过空行和注释
             var trimmed = trim(line)
-            if trimmed.empty() || trimmed[0] == '#'
+            if trimmed.empty || trimmed[0] == '#'
                 continue
             end
             

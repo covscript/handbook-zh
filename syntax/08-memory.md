@@ -437,7 +437,7 @@ class ObjectPool
     
     function acquire()
         if this.available.size > 0
-            var obj = this.available.back()
+            var obj = this.available.back
             this.available.pop_back()
             this.inUse.push_back(obj)
             return obj
