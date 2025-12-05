@@ -93,15 +93,18 @@ class Data
     end
 end
 
-# 创建对象指针
+# 方式1：直接创建对象（非指针）
 var obj = new Data(42)
-var objPtr = gcnew obj
+obj.display()  # 使用点运算符
 
-# 通过指针访问对象
-(*objPtr).display()
+# 方式2：创建指针对象
+var objPtr = gcnew Data(100)
+objPtr->display()  # 使用箭头运算符
 
-# 或使用箭头操作符
-objPtr->display()
+# 方式3：获取现有对象的指针
+var obj2 = new Data(200)
+var ptr = &obj2
+ptr->display()  # 使用箭头运算符
 ```
 
 ## 2.8.3 指针操作
@@ -143,15 +146,19 @@ class Rectangle
 end
 
 var rect = new Rectangle(10, 5)
-var rectPtr = rect  # 对象本身就是引用
 
-# 使用箭头访问成员
-var area = rectPtr->getArea()
+# 对于普通对象，使用点运算符访问成员
+var area = rect.getArea()
 system.out.println("Area: " + to_string(area))
 
 # 修改成员
-rectPtr->width = 20
-system.out.println("New area: " + to_string(rectPtr->getArea()))
+rect.width = 20
+system.out.println("New area: " + to_string(rect.getArea()))
+
+# 如果需要指针，使用 gcnew 或 &
+var rectPtr = gcnew Rectangle(30, 40)
+var ptrArea = rectPtr->getArea()
+system.out.println("Pointer area: " + to_string(ptrArea))
 ```
 
 ### 取址操作符（&）

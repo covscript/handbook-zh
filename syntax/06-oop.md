@@ -374,14 +374,18 @@ var node2 = new Node(2)
 
 node1.next = node2
 
-# 使用箭头操作符访问
-var ptr = node1.next
-system.out.println(ptr->data)  # 2
+# 访问对象成员（使用点运算符）
+var nextNode = node1.next
+system.out.println(nextNode.data)  # 2
 
 # 链式访问
 if node1.next != null
-    system.out.println(node1.next->data)
+    system.out.println(node1.next.data)
 end
+
+# 如果使用 gcnew 创建指针，则使用箭头运算符
+var ptrNode = gcnew Node(3)
+system.out.println(ptrNode->data)  # 3
 ```
 
 ### 解引用操作符（*）
