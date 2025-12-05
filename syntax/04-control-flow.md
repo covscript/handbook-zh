@@ -328,7 +328,7 @@ end
 
 ```covscript
 function findMax(arr)
-    if arr.empty()
+    if arr.empty
         return null
     end
     

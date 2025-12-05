@@ -122,8 +122,8 @@ list.push_back(2)
 list.push_back(3)
 
 # 访问元素
-var first = list.front()
-var last = list.back()
+var first = list.front
+var last = list.back
 
 # 删除元素
 list.pop_back()
