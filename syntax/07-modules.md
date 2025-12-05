@@ -239,7 +239,7 @@ package string_utils
     # 字符串工具函数
     function reverse(str)
         var result = ""
-        for i=str.size() - 1,i >= 0,--i
+        for i=str.size - 1,i >= 0,--i
             result += str[i]
         end
         return result
@@ -279,7 +279,7 @@ package string_utils
         
         foreach ch in str
             if ch == delimiter
-                if current.size() > 0
+                if current.size > 0
                     result.push_back(current)
                     current = ""
                 end
@@ -288,7 +288,7 @@ package string_utils
             end
         end
         
-        if current.size() > 0
+        if current.size > 0
             result.push_back(current)
         end
         
@@ -391,7 +391,7 @@ package config
             
             # 解析配置行（简化版）
             var parts = line.split("=")
-            if parts.size() == 2
+            if parts.size == 2
                 settings.insert(parts[0], parts[1])
             end
         end

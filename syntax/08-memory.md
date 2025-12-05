@@ -199,7 +199,7 @@ var list2 = move(list1)
 
 # list1 现在为空或无效
 # list2 拥有原来的数据
-system.out.println("List2 size: " + to_string(list2.size()))  # 3
+system.out.println("List2 size: " + to_string(list2.size))  # 3
 ```
 
 ### 移动语义在函数中的应用
@@ -214,7 +214,7 @@ function createLargeList()
 end
 
 var data = createLargeList()
-system.out.println("Size: " + to_string(data.size()))
+system.out.println("Size: " + to_string(data.size))
 ```
 
 ### 移动与交换
@@ -436,7 +436,7 @@ class ObjectPool
     end
     
     function acquire()
-        if this.available.size() > 0
+        if this.available.size > 0
             var obj = this.available.back()
             this.available.pop_back()
             this.inUse.push_back(obj)

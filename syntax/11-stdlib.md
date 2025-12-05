@@ -98,7 +98,7 @@ system.out.println("Length: " + to_string(len))
 
 # 获取字符
 var firstChar = str[0]
-var lastChar = str[str.size() - 1]
+var lastChar = str[str.size - 1]
 
 # 字符串切片（如果支持）
 # var sub = str.substr(0, 5)  # "Hello"
@@ -521,7 +521,7 @@ end
 
 function reverse(container)
     var result = new list
-    for i=container.size() - 1,i >= 0,--i
+    for i=container.size - 1,i >= 0,--i
         result.push_back(container[i])
     end
     return result
@@ -537,7 +537,7 @@ function split(str, delimiter)
     
     foreach ch in str
         if ch == delimiter
-            if current.size() > 0
+            if current.size > 0
                 result.push_back(current)
                 current = ""
             end
@@ -546,7 +546,7 @@ function split(str, delimiter)
         end
     end
     
-    if current.size() > 0
+    if current.size > 0
         result.push_back(current)
     end
     
@@ -570,11 +570,11 @@ end
 
 function trim(str)
     var start = 0
-    var end = str.size() - 1
+    var end = str.size - 1
     
     # 去除开头空格
     loop
-        if start >= str.size()
+        if start >= str.size
             break
         end
         if str[start] != ' ' && str[start] != '\t' && str[start] != '\n'
@@ -642,7 +642,7 @@ function readConfig(filename)
             
             # 解析配置行
             var parts = split(trimmed, '=')
-            if parts.size() == 2
+            if parts.size == 2
                 config.insert(trim(parts[0]), trim(parts[1]))
             end
         end

@@ -269,8 +269,8 @@ list1.push_back(3)
 var list2 = clone(list1)
 list2.push_back(4)
 
-system.out.println(list1.size())  # 3
-system.out.println(list2.size())  # 4
+system.out.println(list1.size)  # 3
+system.out.println(list2.size)  # 4
 
 # 克隆对象
 class Point
@@ -417,7 +417,7 @@ function processValue(value)
     else if typeid value == typeid ""
         system.out.println("String: " + value)
     else if typeid value == typeid {}
-        system.out.println("Array with " + to_string(value.size()) + " elements")
+        system.out.println("Array with " + to_string(value.size) + " elements")
     else
         system.out.println("Unknown type")
     end
@@ -566,7 +566,7 @@ end
 function reverse(str)
     # 反转实现
     var result = ""
-    for i=str.size() - 1,i >= 0,--i
+    for i=str.size - 1,i >= 0,--i
         result += str[i]
     end
     return result
@@ -624,7 +624,7 @@ class QueryBuilder
     function build()
         var sql = "SELECT "
         
-        if this.columns.size() == 0
+        if this.columns.size == 0
             sql += "*"
         else
             sql += join(this.columns, ", ")

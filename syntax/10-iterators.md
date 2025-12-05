@@ -542,7 +542,7 @@ foreach item in list
 end
 
 # 需要索引或修改：使用传统循环
-for i=0,i < list.size(),++i
+for i=0,i < list.size,++i
     var item = list[i]
     # 处理 item
 end
