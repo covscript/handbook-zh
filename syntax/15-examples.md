@@ -300,14 +300,37 @@ class ChatRoom
     end
     
     function trim(str)
-        var result = ""
-        var inContent = false
+        var start = 0
+        var end = str.size - 1
         
-        foreach ch in str
-            if ch != '\n' && ch != '\r'
-                result += ch
-                inContent = true
+        # 去除开头空白字符
+        loop
+            if start >= str.size
+                break
             end
+            var ch = str[start]
+            if ch != ' ' && ch != '\t' && ch != '\n' && ch != '\r'
+                break
+            end
+            start += 1
+        end
+        
+        # 去除结尾空白字符
+        loop
+            if end < start
+                break
+            end
+            var ch = str[end]
+            if ch != ' ' && ch != '\t' && ch != '\n' && ch != '\r'
+                break
+            end
+            end -= 1
+        end
+        
+        # 提取子串
+        var result = ""
+        for i = start, i <= end, ++i
+            result += str[i]
         end
         
         return result
