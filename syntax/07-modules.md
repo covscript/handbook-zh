@@ -247,7 +247,7 @@ function toLowerCase(str)
 end
 
 function contains(str, substr)
-    return str.find(substr) != -1
+    return str.find(substr, 0) != -1
 end
 
 function split(str, delimiter)
