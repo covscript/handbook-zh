@@ -48,7 +48,7 @@ system.out.println("Enter text (empty line to finish):")
 var lines = new list
 loop
     var line = system.in.getline()
-    if line.empty
+    if line.empty()
         break
     end
     lines.push_back(line)
@@ -670,7 +670,7 @@ function readINI(filename)
             line = line.trim()
             
             # 跳过空行和注释
-            if line.empty || line[0] == '#' || line[0] == ';'
+            if line.empty() || line[0] == '#' || line[0] == ';'
                 continue
             end
             
@@ -804,7 +804,7 @@ function readConfig(filename)
             
             # 跳过空行和注释
             var trimmed = line.trim()
-            if trimmed.empty || trimmed[0] == '#'
+            if trimmed.empty() || trimmed[0] == '#'
                 continue
             end
             

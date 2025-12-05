@@ -228,7 +228,7 @@ class ChatRoom
                 # 消息循环
                 loop
                     var message = c.recv(1024)
-                    if message.empty
+                    if message.empty()
                         break
                     end
                     
@@ -364,7 +364,7 @@ class ChatClient
             system.out.print("> ")
             var input = system.in.getline()
             
-            if input.empty
+            if input.empty()
                 continue
             end
             
