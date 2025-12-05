@@ -228,7 +228,7 @@ class ChatRoom
                 # 消息循环
                 loop
                     var message = c.recv(1024)
-                    if message.empty
+                    if message.empty()
                         break
                     end
                     
@@ -300,40 +300,7 @@ class ChatRoom
     end
     
     function trim(str)
-        var start = 0
-        var end = str.size - 1
-        
-        # 去除开头空白字符
-        loop
-            if start >= str.size
-                break
-            end
-            var ch = str[start]
-            if ch != ' ' && ch != '\t' && ch != '\n' && ch != '\r'
-                break
-            end
-            start += 1
-        end
-        
-        # 去除结尾空白字符
-        loop
-            if end < start
-                break
-            end
-            var ch = str[end]
-            if ch != ' ' && ch != '\t' && ch != '\n' && ch != '\r'
-                break
-            end
-            end -= 1
-        end
-        
-        # 提取子串
-        var result = ""
-        for i = start, i <= end, ++i
-            result += str[i]
-        end
-        
-        return result
+        return str.trim()
     end
     
     function stop()
@@ -397,7 +364,7 @@ class ChatClient
             system.out.print("> ")
             var input = system.in.getline()
             
-            if input.empty
+            if input.empty()
                 continue
             end
             
@@ -409,7 +376,7 @@ class ChatClient
             end
             
             # 接收响应
-            runtime.sleep(100)
+            runtime.delay(100)
             var response = this.client.recv(4096)
             if response.size > 0
                 system.out.print(response)
@@ -640,7 +607,7 @@ class SnakeGame
             this.render()
             
             # 简化的输入处理（实际需要非阻塞输入）
-            runtime.sleep(200)  # 游戏速度
+            runtime.delay(200)  # 游戏速度
             
             # 这里应该有键盘输入检测
             # 例如: var key = system.in.getKey()
@@ -662,8 +629,6 @@ game.run()
 简单但完整的猜数字游戏。
 
 ```covscript
-
-
 class GuessNumberGame
     var secretNumber = 0
     var attempts = 0
@@ -753,9 +718,7 @@ class GuessNumberGame
     end
     
     function randomInt(min, max)
-        var range = max - min + 1
-        var rand = runtime.time() % range
-        return to_integer(rand) + min
+        return math.randint(min, max)
     end
 end
 
@@ -873,11 +836,11 @@ class TaskManager
         # 获取标签
         var tags = this.getTaskTags(task["id"])
         if tags.size > 0
-            var tagNames = new list
+            var tagNames = new array
             foreach tag in tags
                 tagNames.push_back(tag["name"])
             end
-            system.out.println("标签: " + this.join(tagNames, ", "))
+            system.out.println("标签: " + tagNames.join(", "))
         end
     end
     
@@ -974,18 +937,7 @@ class TaskManager
         system.out.println("已完成: " + to_string(completed))
     end
     
-    function join(list, separator)
-        var result = ""
-        var first = true
-        foreach item in list
-            if !first
-                result += separator
-            end
-            first = false
-            result += to_string(item)
-        end
-        return result
-    end
+
     
     function close()
         if this.db != null
@@ -1160,7 +1112,7 @@ class LogAnalyzer
     end
     
     function contains(str, substr)
-        return str.find(substr) != -1
+        return str.find(substr, 0) != -1
     end
 end
 
@@ -1249,7 +1201,7 @@ class FileRenamer
     end
     
     function contains(str, substr)
-        return str.find(substr) != -1
+        return str.find(substr, 0) != -1
     end
     
     function replace(str, pattern, replacement)

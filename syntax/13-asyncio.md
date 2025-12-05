@@ -164,7 +164,7 @@ fiber.resume(processor, null)
 function asyncTask(taskName, duration)
     return fiber.create([](name, dur) {
         system.out.println(name + " 开始")
-        runtime.sleep(dur)
+        runtime.delay(dur)
         system.out.println(name + " 完成")
         return name + " 的结果"
     }, taskName, duration)
@@ -234,7 +234,7 @@ end
 function slowTask()
     return fiber.create([]() {
         system.out.println("开始缓慢任务...")
-        runtime.sleep(5000)  # 5秒
+        runtime.delay(5000)  # 5秒
         system.out.println("缓慢任务完成")
         return "完成"
     })
@@ -260,7 +260,7 @@ end
 function timedTask()
     return fiber.create([]() {
         system.out.println("任务开始于: " + to_string(runtime.time()))
-        runtime.sleep(3000)
+        runtime.delay(3000)
         system.out.println("任务完成于: " + to_string(runtime.time()))
         return "完成"
     })
@@ -308,7 +308,7 @@ function downloadFile(url, size)
             var percent = (progress * 100) / fileSize
             system.out.println(fileUrl + ": " + to_string(percent) + "%")
             
-            runtime.sleep(100)  # 模拟网络延迟
+            runtime.delay(100)  # 模拟网络延迟
             fiber.yield()  # 让其他下载任务运行
         end
         
@@ -344,7 +344,7 @@ loop
         end
     end
     
-    runtime.sleep(50)
+    runtime.delay(50)
 end
 
 system.out.println("所有下载已完成")
@@ -395,7 +395,7 @@ class TaskScheduler
                 break
             end
             
-            runtime.sleep(100)  # 调度间隔
+            runtime.delay(100)  # 调度间隔
         end
         
         system.out.println("调度器停止")
@@ -485,7 +485,7 @@ var producer = fiber.create([](q, count) {
     for i = 1, i <= count, ++i
         system.out.println("生产: " + to_string(i))
         q.put(i)
-        runtime.sleep(100)
+        runtime.delay(100)
         fiber.yield()
     end
     system.out.println("生产完成")
@@ -496,7 +496,7 @@ var consumer = fiber.create([](q, count) {
     for i = 1, i <= count, ++i
         var item = q.get()
         system.out.println("消费: " + to_string(item))
-        runtime.sleep(150)
+        runtime.delay(150)
         fiber.yield()
     end
     system.out.println("消费完成")
@@ -521,7 +521,7 @@ loop
         fiber.resume(consumer)
     end
     
-    runtime.sleep(50)
+    runtime.delay(50)
 end
 
 system.out.println("程序结束")
