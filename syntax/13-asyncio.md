@@ -408,7 +408,7 @@ class TaskScheduler
 end
 
 # 创建调度器
-var scheduler = new TaskScheduler()
+var scheduler = new TaskScheduler{}
 
 # 添加任务
 scheduler.addTask(fiber.create([](name) {

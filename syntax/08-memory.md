@@ -94,15 +94,15 @@ class Data
 end
 
 # 方式1：直接创建对象（非指针）
-var obj = new Data(42)
+var obj = new Data{42}
 obj.display()  # 使用点运算符
 
 # 方式2：创建指针对象
-var objPtr = gcnew Data(100)
+var objPtr = gcnew Data{100}
 objPtr->display()  # 使用箭头运算符
 
 # 方式3：获取现有对象的指针
-var obj2 = new Data(200)
+var obj2 = new Data{200}
 var ptr = &obj2
 ptr->display()  # 使用箭头运算符
 ```
@@ -145,7 +145,7 @@ class Rectangle
     end
 end
 
-var rect = new Rectangle(10, 5)
+var rect = new Rectangle{10, 5}
 
 # 对于普通对象，使用点运算符访问成员
 var area = rect.getArea()
@@ -156,7 +156,7 @@ rect.width = 20
 system.out.println("New area: " + to_string(rect.getArea()))
 
 # 如果需要指针，使用 gcnew 或 &
-var rectPtr = gcnew Rectangle(30, 40)
+var rectPtr = gcnew Rectangle{30, 40}
 var ptrArea = rectPtr->getArea()
 system.out.println("Pointer area: " + to_string(ptrArea))
 ```
@@ -306,8 +306,8 @@ class Node
 end
 
 # 注意清理循环引用
-var node1 = new Node(1)
-var node2 = new Node(2)
+var node1 = new Node{1}
+var node2 = new Node{2}
 node1.next = node2
 node2.next = node1  # 循环引用
 
@@ -343,7 +343,7 @@ class FileHandler
 end
 
 # 使用
-var handler = new FileHandler("data.txt")
+var handler = new FileHandler{"data.txt"}
 var line = handler.read()
 handler.close()
 ```
@@ -391,7 +391,7 @@ end
 
 # 使用智能指针
 var obj = new hash_map
-var sp1 = new SmartPointer(obj)
+var sp1 = new SmartPointer{obj}
 
 system.out.println("Ref count: " + to_string(sp1.getRefCount()))  # 1
 
@@ -431,7 +431,7 @@ class ObjectPool
     function construct()
         # 预创建一些对象
         for i=0,i < 10,++i
-            this.available.push_back(new MyObject())
+            this.available.push_back(new MyObject{})
         end
     end
     
@@ -444,7 +444,7 @@ class ObjectPool
         end
         
         # 创建新对象
-        var obj = new MyObject()
+        var obj = new MyObject{}
         this.inUse.push_back(obj)
         return obj
     end

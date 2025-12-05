@@ -286,7 +286,7 @@ class Circle extends Shape
 end
 
 # 多态
-var shapes = {new Square("red", 5), new Circle("blue", 3)}
+var shapes = {new Square{"red", 5}, new Circle{"blue", 3}}
 
 foreach shape in shapes
     shape.draw()
@@ -346,7 +346,7 @@ class Data
     end
 end
 
-var obj = new Data(42)
+var obj = new Data{42}
 
 # 获取引用
 var ref = &obj
@@ -371,8 +371,8 @@ class Node
     end
 end
 
-var node1 = new Node(1)
-var node2 = new Node(2)
+var node1 = new Node{1}
+var node2 = new Node{2}
 
 node1.next = node2
 
@@ -386,7 +386,7 @@ if node1.next != null
 end
 
 # 如果使用 gcnew 创建指针，则使用箭头运算符
-var ptrNode = gcnew Node(3)
+var ptrNode = gcnew Node{3}
 system.out.println(ptrNode->data)  # 3
 ```
 

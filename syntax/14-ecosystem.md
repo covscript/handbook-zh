@@ -405,7 +405,7 @@ end
 
 # 使用模型
 var db = csdbc.connect("sqlite", "mydata.db")
-var userModel = new UserModel(db)
+var userModel = new UserModel{db}
 
 # 创建用户
 var userId = userModel.create("David", "david@example.com", 28)
@@ -659,14 +659,14 @@ end
 
 # 创建实体
 var entity1 = world.createEntity()
-world.addComponent(entity1, new Position(100, 100))
-world.addComponent(entity1, new Velocity(5, 0))
-world.addComponent(entity1, new Renderable("player.png"))
+world.addComponent(entity1, new Position{100, 100})
+world.addComponent(entity1, new Velocity{5, 0})
+world.addComponent(entity1, new Renderable{"player.png"})
 
 var entity2 = world.createEntity()
-world.addComponent(entity2, new Position(200, 200))
-world.addComponent(entity2, new Velocity(-3, 2))
-world.addComponent(entity2, new Renderable("enemy.png"))
+world.addComponent(entity2, new Position{200, 200})
+world.addComponent(entity2, new Velocity{-3, 2})
+world.addComponent(entity2, new Renderable{"enemy.png"})
 
 # 定义系统
 class MovementSystem
@@ -699,8 +699,8 @@ class RenderSystem
 end
 
 # 注册系统
-var movementSystem = new MovementSystem()
-var renderSystem = new RenderSystem()
+var movementSystem = new MovementSystem{}
+var renderSystem = new RenderSystem{}
 
 # 游戏循环
 for frame = 0, frame < 10, ++frame
@@ -748,24 +748,24 @@ var gameWorld = ecs.createWorld()
 # 创建玩家
 function createPlayer(world, x, y)
     var player = world.createEntity()
-    world.addComponent(player, new Transform())
+    world.addComponent(player, new Transform{})
     world.getComponent(player, Transform).x = x
     world.getComponent(player, Transform).y = y
-    world.addComponent(player, new Health())
-    world.addComponent(player, new Weapon())
+    world.addComponent(player, new Health{})
+    world.addComponent(player, new Weapon{})
     return player
 end
 
 # 创建敌人
 function createEnemy(world, x, y)
     var enemy = world.createEntity()
-    world.addComponent(enemy, new Transform())
+    world.addComponent(enemy, new Transform{})
     world.getComponent(enemy, Transform).x = x
     world.getComponent(enemy, Transform).y = y
-    world.addComponent(enemy, new Health())
+    world.addComponent(enemy, new Health{})
     world.getComponent(enemy, Health).current = 50
     world.getComponent(enemy, Health).max = 50
-    world.addComponent(enemy, new Enemy())
+    world.addComponent(enemy, new Enemy{})
     return enemy
 end
 
@@ -799,8 +799,8 @@ for i = 0, i < 5, ++i
 end
 
 # 游戏循环
-var enemySystem = new EnemyMovementSystem()
-var collisionSystem = new CollisionSystem()
+var enemySystem = new EnemyMovementSystem{}
+var collisionSystem = new CollisionSystem{}
 
 for tick = 0, tick < 100, ++tick
     var dt = 0.016

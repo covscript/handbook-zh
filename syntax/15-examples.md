@@ -353,7 +353,7 @@ class ChatRoom
 end
 
 # 启动聊天室
-var chatRoom = new ChatRoom()
+var chatRoom = new ChatRoom{}
 chatRoom.start(9999)
 ```
 
@@ -426,7 +426,7 @@ class ChatClient
 end
 
 # 使用客户端
-var client = new ChatClient()
+var client = new ChatClient{}
 try
     client.connect("127.0.0.1", 9999)
     client.run()
@@ -653,7 +653,7 @@ class SnakeGame
 end
 
 # 启动游戏
-var game = new SnakeGame()
+var game = new SnakeGame{}
 game.run()
 ```
 
@@ -760,7 +760,7 @@ class GuessNumberGame
 end
 
 # 启动游戏
-var game = new GuessNumberGame()
+var game = new GuessNumberGame{}
 game.start()
 ```
 
@@ -995,7 +995,7 @@ class TaskManager
 end
 
 # 使用任务管理器
-var taskMgr = new TaskManager("tasks.db")
+var taskMgr = new TaskManager{"tasks.db"}
 
 # 添加任务
 var task1 = taskMgr.addTask("完成报告", "需要在周五前完成月度报告", 5)
@@ -1165,7 +1165,7 @@ class LogAnalyzer
 end
 
 # 使用日志分析器
-var analyzer = new LogAnalyzer("application.log")
+var analyzer = new LogAnalyzer{"application.log"}
 
 if analyzer.analyze()
     analyzer.generateReport()
@@ -1283,7 +1283,7 @@ class FileRenamer
 end
 
 # 使用文件重命名工具
-var renamer = new FileRenamer("./documents")
+var renamer = new FileRenamer{"./documents"}
 
 # 设置重命名规则
 renamer.setPattern("old", "new")

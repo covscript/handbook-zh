@@ -813,7 +813,7 @@ class Logger
 end
 
 # 使用日志系统
-var logger = new Logger("app.log")
+var logger = new Logger{"app.log"}
 logger.setLevel("INFO")
 
 logger.debug("这条不会显示")
