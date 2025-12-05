@@ -242,7 +242,7 @@ system.out.println("Width: " + to_string(w) + ", Height: " + to_string(h))
 function divideWithRemainder(dividend, divisor)
     var quotient = dividend / divisor
     var remainder = dividend % divisor
-    return new pair(quotient, remainder)
+    return quotient:remainder
 end
 
 var result = divideWithRemainder(17, 5)
