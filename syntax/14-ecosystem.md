@@ -915,14 +915,14 @@ var pattern = regex.compile("[0-9]+")
 
 # 匹配
 var text = "我有 123 个苹果和 456 个橙子"
-var matches = pattern.findAll(text)
+var matches = pattern.find_all(text)
 
 foreach match in matches
     system.out.println("找到数字: " + match)
 end
 
 # 替换
-var result = pattern.replace(text, "***")
+var result = pattern.replace_all(text, "***")
 system.out.println(result)  # "我有 *** 个苹果和 *** 个橙子"
 ```
 

@@ -301,13 +301,15 @@ class ChatRoom
     
     function trim(str)
         var result = ""
+        var inContent = false
+        
         foreach ch in str
-            if ch != '\n' && ch != '\r' && ch != ' '
+            if ch != '\n' && ch != '\r'
                 result += ch
-            else if result.size > 0
-                result += ch
+                inContent = true
             end
         end
+        
         return result
     end
     
@@ -822,11 +824,19 @@ class TaskManager
         end
         
         system.out.println("\n任务列表:")
-        system.out.println("=" * 60)
+        var separator = ""
+        for i = 0, i < 60, ++i
+            separator += "="
+        end
+        system.out.println(separator)
         
         foreach task in tasks
             this.printTask(task)
-            system.out.println("-" * 60)
+            var line = ""
+            for i = 0, i < 60, ++i
+                line += "-"
+            end
+            system.out.println(line)
         end
     end
     
@@ -914,11 +924,19 @@ class TaskManager
         
         system.out.println("\n搜索结果 (关键词: " + keyword + "):")
         system.out.println("找到 " + to_string(tasks.size) + " 个任务")
-        system.out.println("=" * 60)
+        var separator = ""
+        for i = 0, i < 60, ++i
+            separator += "="
+        end
+        system.out.println(separator)
         
         foreach task in tasks
             this.printTask(task)
-            system.out.println("-" * 60)
+            var line = ""
+            for i = 0, i < 60, ++i
+                line += "-"
+            end
+            system.out.println(line)
         end
     end
     
