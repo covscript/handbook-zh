@@ -70,9 +70,16 @@ system.out.println("圆的面积：" + to_string(area))
 cs program.csc
 ```
 
-### 编译并运行 ECS 文件
+### 运行 ECS 文件
 
-对于 `.ecs` 文件，需要先编译：
+对于 `.ecs` 文件，可以直接运行，ECS 会自动缓存编译后的文件，只在文件变化时重新编译：
+
+```bash
+# 直接运行 ECS 文件
+ecs program.ecs
+```
+
+也可以显式编译：
 
 ```bash
 # 编译 ECS 文件

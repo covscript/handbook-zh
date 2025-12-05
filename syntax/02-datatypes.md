@@ -75,6 +75,10 @@ var multiline = "First line\nSecond line"
 # 字符串拼接
 var greeting = "Hello, " + name + "!"
 
+# 字符串追加
+var text = "Hello"
+text.append(", World!")  # text 现在是 "Hello, World!"
+
 # 字符串长度
 var len = str.size  # 注意：size 不需要括号
 
@@ -116,9 +120,6 @@ var list = new list
 list.push_back(1)
 list.push_back(2)
 list.push_back(3)
-
-# 也可以使用 append 方法
-list.append(4)
 
 # 访问元素
 var first = list.front()
