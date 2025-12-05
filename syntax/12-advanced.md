@@ -2,66 +2,6 @@
 
 CovScript 提供了一系列高级特性，让开发更加灵活和高效。
 
-## 2.12.1 do 表达式
-
-`do` 表达式允许在表达式位置执行语句块并返回值。
-
-```covscript
-# 基本 do 表达式
-var result = do
-    var x = 10
-    var y = 20
-    x + y  # 最后一个表达式作为返回值
-end
-
-system.out.println(result)  # 30
-
-# 在函数调用中使用
-system.out.println(do
-    var msg = "Hello"
-    msg + ", World!"
-end)
-
-# 复杂的 do 表达式
-var value = do
-    var sum = 0
-    for i = 1, i <= 10, ++i
-        sum += i
-    end
-    sum
-end
-
-system.out.println("Sum: " + to_string(value))
-```
-
-### do 表达式的实际应用
-
-```covscript
-# 条件初始化
-var config = do
-    if system.path.exist("config.json")
-        loadConfig("config.json")
-    else
-        getDefaultConfig()
-    end
-end
-
-# 复杂计算
-var statistics = do
-    var data = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
-    var sum = 0
-    var count = 0
-    
-    foreach num in data
-        sum += num
-        count += 1
-    end
-    
-    var mean = sum / count
-    new hash_map.insert("sum", sum).insert("count", count).insert("mean", mean)
-end
-```
-
 ## 2.12.2 范围函数（range）
 
 `range` 函数生成数字序列。
@@ -373,36 +313,6 @@ var v4 = v1.multiply(2)
 
 system.out.println(v3.toString())  # (4, 6)
 system.out.println(v4.toString())  # (2, 4)
-```
-
-## 2.12.8 元编程
-
-使用反射和动态特性实现元编程。
-
-```covscript
-# 动态访问属性
-function getProperty(obj, name)
-    # 根据名称获取属性
-    # 实现取决于语言支持
-end
-
-function setProperty(obj, name, value)
-    # 根据名称设置属性
-end
-
-# 动态方法调用
-function callMethod(obj, methodName, args)
-    # 动态调用方法
-end
-
-# 类型信息
-function getTypeInfo(obj)
-    return {
-        "type": type(obj),
-        "typeid": typeid obj,
-        "string": to_string(obj)
-    }
-end
 ```
 
 ## 2.12.9 模式匹配（概念）

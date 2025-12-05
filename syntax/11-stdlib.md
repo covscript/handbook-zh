@@ -229,7 +229,7 @@ system.out.println("Type of y: " + to_string(type(y)))
 ### 基本数学函数
 
 ```covscript
-import math
+
 
 # 绝对值
 var abs1 = math.abs(-10)
@@ -256,7 +256,7 @@ var log10_1 = math.log10(100) # 以10为底的对数
 ### 数学常量
 
 ```covscript
-import math
+
 
 # 常用常量
 constant PI = 3.14159265359
@@ -273,7 +273,7 @@ system.out.println("Area: " + to_string(area))
 ### 随机数
 
 ```covscript
-import math
+
 
 # 生成随机数（如果 math 模块支持）
 var random1 = math.random()  # 0到1之间的随机数

@@ -11,7 +11,7 @@ CovScript 提供了强大的协程和异步编程支持，让开发者能够编�
 使用 `fiber.create()` 创建协程。
 
 ```covscript
-import fiber
+
 
 # 创建一个简单的协程
 var f = fiber.create([]() {
@@ -46,7 +46,7 @@ system.out.println("主程序：结束")
 3. **fiber.resume(fiber)** - 恢复协程的执行
 
 ```covscript
-import fiber
+
 
 # 带参数的协程
 var counter = fiber.create([](name, count) {
@@ -73,7 +73,7 @@ fiber.resume(counter)
 - **结束态**：协程函数执行完毕
 
 ```covscript
-import fiber
+
 
 function checkStatus(f)
     if fiber.is_alive(f)
@@ -106,7 +106,7 @@ checkStatus(task)  # 协程已结束
 协程可以通过 `yield` 和 `resume` 传递数据。
 
 ```covscript
-import fiber
+
 
 # 生产者协程
 var producer = fiber.create([]() {
@@ -126,7 +126,7 @@ end
 ### 双向通信
 
 ```covscript
-import fiber
+
 
 var processor = fiber.create([]() {
     loop
@@ -158,7 +158,7 @@ fiber.resume(processor, null)
 `runtime.await()` 函数用于等待协程完成，并返回协程的最终结果。
 
 ```covscript
-import fiber
+
 
 # 异步任务
 function asyncTask(taskName, duration)
@@ -185,7 +185,7 @@ system.out.println("收到: " + result2)
 ### 并发执行多个任务
 
 ```covscript
-import fiber
+
 
 function createWorker(id, workload)
     return fiber.create([](workerId, work) {
@@ -229,7 +229,7 @@ end
 `runtime.wait_for()` 在指定时间内等待协程完成。如果超时，抛出异常。
 
 ```covscript
-import fiber
+
 
 function slowTask()
     return fiber.create([]() {
@@ -255,7 +255,7 @@ end
 `runtime.wait_until()` 等待协程直到达到指定的时间戳。
 
 ```covscript
-import fiber
+
 
 function timedTask()
     return fiber.create([]() {
@@ -284,7 +284,7 @@ end
 模拟并发下载多个文件。
 
 ```covscript
-import fiber
+
 
 # 模拟文件下载
 function downloadFile(url, size)
@@ -355,7 +355,7 @@ system.out.println("所有下载已完成")
 实现一个简单的任务调度系统。
 
 ```covscript
-import fiber
+
 
 class TaskScheduler
     var tasks = new list
@@ -441,7 +441,7 @@ scheduler.run()
 使用协程实现经典的生产者-消费者模式。
 
 ```covscript
-import fiber
+
 
 class AsyncQueue
     var items = new list
@@ -534,7 +534,7 @@ system.out.println("程序结束")
 在长时间运行的任务中定期调用 `fiber.yield()`，避免阻塞其他协程。
 
 ```covscript
-import fiber
+
 
 # 不好的做法：长时间计算不让出控制权
 function badTask()
@@ -567,7 +567,7 @@ end
 始终在协程中处理可能的异常。
 
 ```covscript
-import fiber
+
 
 function safeTask(operation)
     return fiber.create([](op) {
@@ -600,7 +600,7 @@ end
 在设计协程间通信时，确保不会出现循环等待。
 
 ```covscript
-import fiber
+
 
 # 使用超时避免死锁
 function safeWait(task, timeout)
@@ -618,7 +618,7 @@ end
 确保协程结束时清理资源。
 
 ```covscript
-import fiber
+
 
 function taskWithResource()
     return fiber.create([]() {
@@ -657,7 +657,7 @@ end
 4. **CPU vs I/O**：协程更适合 I/O 密集型任务，CPU 密集型任务考虑其他方案
 
 ```covscript
-import fiber
+
 
 # 限制并发数量
 class WorkerPool

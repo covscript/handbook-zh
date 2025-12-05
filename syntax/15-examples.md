@@ -662,7 +662,7 @@ game.run()
 简单但完整的猜数字游戏。
 
 ```covscript
-import math
+
 
 class GuessNumberGame
     var secretNumber = 0

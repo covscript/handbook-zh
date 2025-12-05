@@ -115,6 +115,8 @@ end
 
 ## 2.9.3 异常类型
 
+自定义异常类型仅在 ECS 中支持
+
 ### 字符串异常
 
 ```covscript
@@ -253,33 +255,6 @@ end
 
 ```covscript
 function readFile(filename)
-    var file = null
-    try
-        file = iostream.fstream(filename, iostream.openmode.in)
-        var content = ""
-        
-        loop
-            var line = file.getline()
-            if file.eof()
-                break
-            end
-            content += line + "\n"
-        end
-        
-        return content
-    catch e
-        system.out.println("Error reading file: " + e)
-        return null
-    finally
-        # 确保文件被关闭（如果支持 finally）
-        if file != null
-            file.close()
-        end
-    end
-end
-
-# 如果不支持 finally，使用这种模式
-function readFileSafe(filename)
     var file = null
     try
         file = iostream.fstream(filename, iostream.openmode.in)
