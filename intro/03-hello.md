@@ -40,11 +40,12 @@ Hello, World!
 一个简单的 CovScript 程序通常包含以下内容：
 
 ```covscript
+# 使用 UTF-8 编码集
+@charset: utf8
+# 若在 Windows 上可以使用 @charset: gbk
+
 # 注释：使用 # 符号
 # 这是一个简单的程序示例
-
-# 导入需要的模块（可选）
-import math
 
 # 定义变量
 var name = "Alice"
@@ -56,7 +57,7 @@ system.out.println("年龄：" + to_string(age))
 
 # 简单的计算
 var radius = 5
-var area = math.pi * radius * radius
+var area = math.constants.pi * (radius ^ 2)
 system.out.println("圆的面积：" + to_string(area))
 ```
 
@@ -64,7 +65,7 @@ system.out.println("圆的面积：" + to_string(area))
 
 ### 直接运行
 
-对于 `.csc` 和 `.csp` 文件，可以直接运行：
+对于 `.csc` 文件，可以直接运行：
 
 ```bash
 cs program.csc
@@ -104,7 +105,7 @@ cs
 > var y = 20
 > system.out.println(x + y)
 30
-> exit()
+> quit()
 ```
 
 ## 1.3.5 调试程序
@@ -116,7 +117,3 @@ cs_dbg program.csc
 ```
 
 调试器支持设置断点、单步执行、查看变量等功能。
-
-## 下一步
-
-现在你已经了解了如何编写和运行 CovScript 程序，接下来我们将在 [**贰 · 语法基础**](../syntax/README.md) 章节中深入学习 CovScript 的语法和特性。
