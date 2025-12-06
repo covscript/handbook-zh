@@ -86,20 +86,25 @@ end
 import network
 using network
 
-# 创建 UDP socket
-var sock = new udp.socket
-sock.open_v4()
-sock.bind(udp.endpoint_v4(8080))
+# 创建 TCP socket
+var sock = new tcp.socket
+var acpt = tcp.acceptor(tcp.endpoint_v4(8080))
 
 system.out.println("TCP 服务器启动在端口 8080")
 
 loop
-    var ep = udp.endpoint_v4(0)
-    var data = sock.receive_from(1024, ep)
+    # 接受客户端连接
+    runtime.await(sock.accept, acpt)
+    
+    # 接收数据
+    var data = sock.receive(1024)
     system.out.println("收到: " + data)
     
     # 发送响应
-    sock.send_to("服务器收到: " + data, ep)
+    sock.send("服务器收到: " + data)
+    
+    # 关闭连接
+    sock.close()
 end
 ```
 
@@ -370,19 +375,24 @@ try
     stmt2.just_exec()
     
     # 转账操作
-    db.execute("UPDATE accounts SET balance = balance - ? WHERE name = ?", {200, "账户A"})
-    db.execute("UPDATE accounts SET balance = balance + ? WHERE name = ?", {200, "账户B"})
+    var stmt3 = db.prepare("UPDATE accounts SET balance = balance - ? WHERE name = ?")
+    stmt3.bind(1, "200")
+    stmt3.bind(2, "账户A")
+    stmt3.just_exec()
+    
+    var stmt4 = db.prepare("UPDATE accounts SET balance = balance + ? WHERE name = ?")
+    stmt4.bind(1, "200")
+    stmt4.bind(2, "账户B")
+    stmt4.just_exec()
     
     # 提交事务
-    db.commit()
+    db.just_exec("COMMIT")
     system.out.println("事务提交成功")
     
 catch e
     # 发生错误时回滚
-    db.rollback()
+    db.just_exec("ROLLBACK")
     system.out.println("事务回滚: " + to_string(e))
-finally
-    db.close()
 end
 ```
 
