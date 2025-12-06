@@ -115,7 +115,11 @@ end
 
 ## 2.9.3 异常类型
 
-自定义异常类型仅在 ECS 中支持
+CovScript 支持抛出任意类型的值作为异常，包括字符串、数字、对象等。
+
+**ECS 与 CSC 区别：**
+- **ECS：** 支持自定义异常类（使用 `class` 定义），因为 ECS 支持构造函数特性
+- **CSC：** 仅支持 `runtime.exception` 作为异常对象，不支持自定义异常类
 
 ### 字符串异常
 
@@ -170,7 +174,9 @@ end
 
 ## 2.9.4 自定义异常类
 
-创建自定义异常类以更好地组织错误处理。
+**仅 ECS 支持：** 自定义异常类需要使用 `construct` 构造函数，这是 ECS 特有的特性。
+
+创建自定义异常类可以更好地组织错误处理，提供结构化的错误信息。
 
 ```covscript
 # 基础异常类
@@ -178,6 +184,7 @@ class Exception
     var message = ""
     var code = 0
     
+    # 构造函数（仅 ECS 支持）
     function construct(msg, c)
         this.message = msg
         this.code = c

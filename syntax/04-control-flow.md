@@ -69,7 +69,7 @@ else
 end
 
 # 更清晰的写法（推荐）
-# 只在 ECS 中允许
+# **仅 ECS 支持：** CSC 中需要使用嵌套的 if-else
 if score >= 90
     system.out.println("优秀")
 else if score >= 80
@@ -78,6 +78,27 @@ else if score >= 60
     system.out.println("及格")
 else
     system.out.println("不及格")
+end
+```
+
+**ECS 与 CSC 区别：** 
+- **ECS** 支持 `else if` 语法，可以直接链式判断多个条件
+- **CSC** 需要使用嵌套的 `if-else` 结构
+
+```covscript
+# CSC 中的等效写法
+if score >= 90
+    system.out.println("优秀")
+else
+    if score >= 80
+        system.out.println("良好")
+    else
+        if score >= 60
+            system.out.println("及格")
+        else
+            system.out.println("不及格")
+        end
+    end
 end
 ```
 
@@ -136,9 +157,11 @@ end
 
 ## 2.4.3 循环语句
 
+CovScript 提供了多种循环结构，适用于不同的场景。
+
 ### while 循环
 
-当条件为真时重复执行代码块。
+当条件为真时重复执行代码块。适用于循环次数不确定的情况。
 
 ```covscript
 # 基本 while 循环
@@ -209,7 +232,9 @@ end
 
 ### for 循环
 
-用于固定次数的循环。注意：CovScript 的 `for` 循环使用逗号分隔。
+用于固定次数的循环。
+
+**重要语法说明：** CovScript 的 `for` 循环使用逗号（`,`）分隔初始化、条件和增量表达式，而不是分号。这是 CovScript 的特殊语法。
 
 ```covscript
 # 基本 for 循环（使用逗号分隔）

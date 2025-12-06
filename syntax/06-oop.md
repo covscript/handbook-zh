@@ -98,7 +98,9 @@ person.introduce()
 
 ## 2.6.3 构造函数（construct）
 
-构造函数在对象创建时自动调用，用于初始化对象（仅在 ECS 中可用）。
+**仅 ECS 支持：** 构造函数 `construct` 是 CovScript 4 (ECS) 的特性，CSC 不支持此功能。
+
+构造函数在对象创建时自动调用，用于初始化对象。使用构造函数可以在创建对象时直接传入参数，避免创建后再逐个设置属性。
 
 ```covscript
 class Student
@@ -106,7 +108,7 @@ class Student
     var age = 0
     var grade = ""
     
-    # 构造函数
+    # 构造函数：在对象创建时自动调用
     function construct(n, a, g)
         this.name = n
         this.age = a
@@ -121,6 +123,7 @@ class Student
 end
 
 # 使用构造函数创建对象
+# **仅 ECS 支持：** 使用 new ClassName{参数列表} 语法
 var student1 = new Student{"Alice", 18, "A"}
 var student2 = new Student{"Bob", 19, "B"}
 
@@ -152,7 +155,11 @@ var book = new Book
 book.info()
 ```
 
-注意，即便构造函数（construct）已定义，默认构造函数（initialize）依然会先被调用
+**重要说明：** 即便定义了 `construct` 构造函数，`initialize` 默认构造函数依然会先被调用。调用顺序为：
+1. 先调用 `initialize()` 进行默认初始化
+2. 再调用 `construct(参数)` 进行参数化初始化
+
+这个设计确保了对象的基本状态总是被正确初始化
 
 ## 2.6.4 继承（extends）
 
@@ -193,7 +200,7 @@ class Dog extends Animal
         system.out.println("Woof! Woof!")
     end
     
-    function fetch() override
+    function fetch()
         system.out.println(this.name + " is fetching the ball!")
     end
 end
@@ -211,7 +218,7 @@ class Cat extends Animal
         system.out.println("Meow! Meow!")
     end
     
-    function climb() override
+    function climb()
         system.out.println(this.name + " is climbing the tree!")
     end
 end

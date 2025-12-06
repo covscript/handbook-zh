@@ -2,6 +2,16 @@
 
 CovScript 提供了强大的协程和异步编程支持，让开发者能够编写高效的并发程序。本章介绍如何使用 `fiber`（协程）模块和相关的运行时函数来实现异步操作。
 
+**什么是协程？** 协程是一种轻量级的并发机制，比线程更轻量，允许函数在执行过程中主动让出控制权，稍后再恢复执行。与传统的抢占式多线程不同，协程是协作式的，由程序员控制何时切换。
+
+**协程的优势：**
+- 更低的内存开销（相比线程）
+- 更少的上下文切换开销
+- 更容易理解和调试（没有竞态条件）
+- 适合 I/O 密集型任务
+
+**兼容性：** 协程功能在 ECS 和 CSC 中都可用。
+
 ## 2.13.1 协程基础
 
 协程（Fiber）是一种轻量级的并发机制，它允许函数在执行过程中暂停并在稍后恢复。
@@ -447,7 +457,7 @@ class AsyncQueue
     var items = new list
     var maxSize = 10
     
-    function construct(size) override
+    function construct(size)
         this.maxSize = size
     end
     
@@ -665,7 +675,7 @@ class WorkerPool
     var activeWorkers = 0
     var taskQueue = new list
     
-    function construct(max) override
+    function construct(max)
         this.maxWorkers = max
     end
     
