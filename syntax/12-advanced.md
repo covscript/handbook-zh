@@ -1,66 +1,8 @@
 # 2.12 高级特性
 
-CovScript 提供了一系列高级特性，让开发更加灵活和高效。
+CovScript 提供了一系列高级特性，让开发更加灵活和高效。本章介绍一些高级编程技巧和语言特性，包括范围函数、链式调用、元编程等。
 
-## 2.12.1 do 表达式
-
-`do` 表达式允许在表达式位置执行语句块并返回值。
-
-```covscript
-# 基本 do 表达式
-var result = do
-    var x = 10
-    var y = 20
-    x + y  # 最后一个表达式作为返回值
-end
-
-system.out.println(result)  # 30
-
-# 在函数调用中使用
-system.out.println(do
-    var msg = "Hello"
-    msg + ", World!"
-end)
-
-# 复杂的 do 表达式
-var value = do
-    var sum = 0
-    for i=1,i <= 10,++i
-        sum += i
-    end
-    sum
-end
-
-system.out.println("Sum: " + to_string(value))
-```
-
-### do 表达式的实际应用
-
-```covscript
-# 条件初始化
-var config = do
-    if system.path.exist("config.json")
-        loadConfig("config.json")
-    else
-        getDefaultConfig()
-    end
-end
-
-# 复杂计算
-var statistics = do
-    var data = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
-    var sum = 0
-    var count = 0
-    
-    foreach num in data
-        sum += num
-        count += 1
-    end
-    
-    var mean = sum / count
-    new hash_map.insert("sum", sum).insert("count", count).insert("mean", mean)
-end
-```
+**兼容性说明：** 本章内容大部分在 ECS 和 CSC 中都可用，特殊的 ECS 专有特性会特别标注。
 
 ## 2.12.2 范围函数（range）
 
@@ -193,7 +135,7 @@ end
 
 # 使用流式API
 var numbers = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
-var result = new Query(numbers)
+var result = new Query{numbers}
     .where([](x) -> x % 2 == 0)      # 筛选偶数
     .select([](x) -> x * x)           # 平方
     .toList()
@@ -353,12 +295,12 @@ class Vector
     
     # 重载加法（概念示例）
     function add(other)
-        return new Vector(this.x + other.x, this.y + other.y)
+        return new Vector{this.x + other.x, this.y + other.y}
     end
     
     # 重载乘法
     function multiply(scalar)
-        return new Vector(this.x * scalar, this.y * scalar)
+        return new Vector{this.x * scalar, this.y * scalar}
     end
     
     function toString()
@@ -366,43 +308,13 @@ class Vector
     end
 end
 
-var v1 = new Vector(1, 2)
-var v2 = new Vector(3, 4)
+var v1 = new Vector{1, 2}
+var v2 = new Vector{3, 4}
 var v3 = v1.add(v2)
 var v4 = v1.multiply(2)
 
 system.out.println(v3.toString())  # (4, 6)
 system.out.println(v4.toString())  # (2, 4)
-```
-
-## 2.12.8 元编程
-
-使用反射和动态特性实现元编程。
-
-```covscript
-# 动态访问属性
-function getProperty(obj, name)
-    # 根据名称获取属性
-    # 实现取决于语言支持
-end
-
-function setProperty(obj, name, value)
-    # 根据名称设置属性
-end
-
-# 动态方法调用
-function callMethod(obj, methodName, args)
-    # 动态调用方法
-end
-
-# 类型信息
-function getTypeInfo(obj)
-    return {
-        "type": type(obj),
-        "typeid": typeid obj,
-        "string": to_string(obj)
-    }
-end
 ```
 
 ## 2.12.9 模式匹配（概念）
@@ -471,7 +383,7 @@ end
 
 # 使用装饰器
 function slowFunction(n)
-    runtime.sleep(1000)
+    runtime.delay(1000)
     return n * n
 end
 
@@ -504,11 +416,11 @@ class Lazy
 end
 
 # 使用惰性求值
-var expensive = new Lazy([]() {
+var expensive = new Lazy{[]() {
     system.out.println("Computing expensive value...")
-    runtime.sleep(2000)
+    runtime.delay(2000)
     return 42
-})
+}}
 
 system.out.println("Created lazy value")
 # 这里不会计算
@@ -544,7 +456,7 @@ class Pipeline
 end
 
 # 使用管道
-var result = new Pipeline(10)
+var result = new Pipeline{10}
     .pipe([](x) -> x * 2)      # 20
     .pipe([](x) -> x + 5)      # 25
     .pipe([](x) -> x * x)      # 625
@@ -566,13 +478,13 @@ end
 function reverse(str)
     # 反转实现
     var result = ""
-    for i=str.size - 1,i >= 0,--i
+    for i = str.size - 1, i >= 0, --i
         result += str[i]
     end
     return result
 end
 
-var processed = new Pipeline("  hello world  ")
+var processed = new Pipeline{"  hello world  "}
     .pipe(trim)
     .pipe(uppercase)
     .pipe(reverse)
@@ -632,11 +544,11 @@ class QueryBuilder
         
         sql += " FROM " + this.table
         
-        if !this.whereClause.empty
+        if !this.whereClause.empty()
             sql += " WHERE " + this.whereClause
         end
         
-        if !this.orderBy.empty
+        if !this.orderBy.empty()
             sql += " ORDER BY " + this.orderBy
         end
         
@@ -649,7 +561,7 @@ class QueryBuilder
 end
 
 # 使用构建器
-var query = new QueryBuilder()
+var query = new QueryBuilder{}
     .from("users")
     .select({"id", "name", "email"})
     .where("age > 18")

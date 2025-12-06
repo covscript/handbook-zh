@@ -115,6 +115,12 @@ end
 
 ## 2.9.3 异常类型
 
+CovScript 支持抛出任意类型的值作为异常，包括字符串、数字、对象等。
+
+**ECS 与 CSC 区别：**
+- **ECS：** 支持自定义异常类（使用 `class` 定义），因为 ECS 支持构造函数特性
+- **CSC：** 仅支持 `runtime.exception` 作为异常对象，不支持自定义异常类
+
 ### 字符串异常
 
 ```covscript
@@ -168,7 +174,9 @@ end
 
 ## 2.9.4 自定义异常类
 
-创建自定义异常类以更好地组织错误处理。
+**仅 ECS 支持：** 自定义异常类需要使用 `construct` 构造函数，这是 ECS 特有的特性。
+
+创建自定义异常类可以更好地组织错误处理，提供结构化的错误信息。
 
 ```covscript
 # 基础异常类
@@ -176,6 +184,7 @@ class Exception
     var message = ""
     var code = 0
     
+    # 构造函数（仅 ECS 支持）
     function construct(msg, c)
         this.message = msg
         this.code = c
@@ -198,7 +207,7 @@ end
 class FileNotFoundException extends Exception
     var filename = ""
     
-    function construct(fname)
+    function construct(fname) override
         this.filename = fname
         this.message = "File not found: " + fname
         this.code = 404
@@ -212,7 +221,7 @@ end
 class InvalidArgumentException extends Exception
     var argumentName = ""
     
-    function construct(argName, msg)
+    function construct(argName, msg) override
         this.argumentName = argName
         this.message = "Invalid argument '" + argName + "': " + msg
         this.code = 400
@@ -222,14 +231,14 @@ end
 # 使用自定义异常
 function openFile(filename)
     if !system.path.exist(filename)
-        throw new FileNotFoundException(filename)
+        throw new FileNotFoundException{filename}
     end
     return iostream.fstream(filename, iostream.openmode.in)
 end
 
 function processNumber(num)
     if num < 0
-        throw new InvalidArgumentException("num", "must be non-negative")
+        throw new InvalidArgumentException{"num", "must be non-negative"}
     end
     return num * 2
 end
@@ -238,7 +247,7 @@ end
 try
     var file = openFile("nonexistent.txt")
 catch e
-    if typeid e == typeid new FileNotFoundException("")
+    if typeid e == typeid new FileNotFoundException{""}
         system.out.println("File error: " + e.getMessage())
         system.out.println("Filename: " + e.getFilename())
     else
@@ -253,33 +262,6 @@ end
 
 ```covscript
 function readFile(filename)
-    var file = null
-    try
-        file = iostream.fstream(filename, iostream.openmode.in)
-        var content = ""
-        
-        loop
-            var line = file.getline()
-            if file.eof()
-                break
-            end
-            content += line + "\n"
-        end
-        
-        return content
-    catch e
-        system.out.println("Error reading file: " + e)
-        return null
-    finally
-        # 确保文件被关闭（如果支持 finally）
-        if file != null
-            file.close()
-        end
-    end
-end
-
-# 如果不支持 finally，使用这种模式
-function readFileSafe(filename)
     var file = null
     try
         file = iostream.fstream(filename, iostream.openmode.in)
@@ -359,7 +341,7 @@ function connectToServer(host, port, maxRetries)
             end
             
             system.out.println("Retry " + to_string(retries) + "...")
-            runtime.sleep(1000)  # 等待1秒后重试
+            runtime.delay(1000)  # 等待1秒后重试
         end
     end
 end
@@ -385,7 +367,7 @@ class FileManager
         
         try
             if !system.path.exist(filename)
-                throw new FileNotFoundException(filename)
+                throw new FileNotFoundException{filename}
             end
             
             file = iostream.fstream(filename, iostream.openmode.in)
@@ -441,8 +423,8 @@ class HttpClient
     function get(url)
         try
             # 验证 URL
-            if url == null || url.empty
-                throw new InvalidArgumentException("url", "URL cannot be empty")
+            if url == null || url.empty()
+                throw new InvalidArgumentException{"url", "URL cannot be empty"}
             end
             
             # 发送请求
@@ -473,7 +455,7 @@ class HttpClient
                 end
                 
                 system.out.println("Retry " + to_string(attempts) + "...")
-                runtime.sleep(1000)
+                runtime.delay(1000)
             end
         end
     end
@@ -485,12 +467,12 @@ end
 ```covscript
 class Validator
     function validateEmail(email)
-        if email == null || email.empty
-            throw new InvalidArgumentException("email", "cannot be empty")
+        if email == null || email.empty()
+            throw new InvalidArgumentException{"email", "cannot be empty"}
         end
         
         if !email.contains("@")
-            throw new InvalidArgumentException("email", "invalid format")
+            throw new InvalidArgumentException{"email", "invalid format"}
         end
         
         return true
@@ -498,11 +480,11 @@ class Validator
     
     function validateAge(age)
         if age < 0
-            throw new InvalidArgumentException("age", "cannot be negative")
+            throw new InvalidArgumentException{"age", "cannot be negative"}
         end
         
         if age > 150
-            throw new InvalidArgumentException("age", "unrealistic value")
+            throw new InvalidArgumentException{"age", "unrealistic value"}
         end
         
         return true
@@ -547,7 +529,7 @@ end
 function processItem(item)
     # 参数验证
     if item == null
-        throw new InvalidArgumentException("item", "cannot be null")
+        throw new InvalidArgumentException{"item", "cannot be null"}
     end
     
     # 资源管理

@@ -98,7 +98,9 @@ person.introduce()
 
 ## 2.6.3 构造函数（construct）
 
-构造函数在对象创建时自动调用，用于初始化对象。
+**仅 ECS 支持：** 构造函数 `construct` 是 CovScript 4 (ECS) 的特性，CSC 不支持此功能。
+
+构造函数在对象创建时自动调用，用于初始化对象。使用构造函数可以在创建对象时直接传入参数，避免创建后再逐个设置属性。
 
 ```covscript
 class Student
@@ -106,7 +108,7 @@ class Student
     var age = 0
     var grade = ""
     
-    # 构造函数
+    # 构造函数：在对象创建时自动调用
     function construct(n, a, g)
         this.name = n
         this.age = a
@@ -121,8 +123,9 @@ class Student
 end
 
 # 使用构造函数创建对象
-var student1 = new Student("Alice", 18, "A")
-var student2 = new Student("Bob", 19, "B")
+# **仅 ECS 支持：** 使用 new ClassName{参数列表} 语法
+var student1 = new Student{"Alice", 18, "A"}
+var student2 = new Student{"Bob", 19, "B"}
 
 student1.display()
 student2.display()
@@ -136,8 +139,8 @@ class Book
     var author = "Unknown"
     var pages = 0
     
-    # 无参数构造函数
-    function construct()
+    # 默认构造函数
+    function initialize()
         this.title = "Default Book"
         this.author = "Default Author"
         this.pages = 100
@@ -151,6 +154,12 @@ end
 var book = new Book
 book.info()
 ```
+
+**重要说明：** 即便定义了 `construct` 构造函数，`initialize` 默认构造函数依然会先被调用。调用顺序为：
+1. 先调用 `initialize()` 进行默认初始化
+2. 再调用 `construct(参数)` 进行参数化初始化
+
+这个设计确保了对象的基本状态总是被正确初始化
 
 ## 2.6.4 继承（extends）
 
@@ -180,14 +189,14 @@ end
 class Dog extends Animal
     var breed = ""
     
-    function construct(n, a, b)
+    function construct(n, a, b) override
         # 调用父类构造函数（通过手动设置）
         this.name = n
         this.age = a
         this.breed = b
     end
     
-    function makeSound()
+    function makeSound() override
         system.out.println("Woof! Woof!")
     end
     
@@ -199,13 +208,13 @@ end
 class Cat extends Animal
     var color = ""
     
-    function construct(n, a, c)
+    function construct(n, a, c) override
         this.name = n
         this.age = a
         this.color = c
     end
     
-    function makeSound()
+    function makeSound() override
         system.out.println("Meow! Meow!")
     end
     
@@ -215,12 +224,12 @@ class Cat extends Animal
 end
 
 # 使用继承
-var dog = new Dog("Buddy", 3, "Golden Retriever")
+var dog = new Dog{"Buddy", 3, "Golden Retriever"}
 dog.info()
 dog.makeSound()
 dog.fetch()
 
-var cat = new Cat("Whiskers", 2, "Orange")
+var cat = new Cat{"Whiskers", 2, "Orange"}
 cat.info()
 cat.makeSound()
 cat.climb()
@@ -250,17 +259,17 @@ end
 class Square extends Shape
     var side = 0
     
-    function construct(c, s)
+    function construct(c, s) override
         this.color = c
         this.side = s
     end
     
     # 重写父类方法
-    function draw()
+    function draw() override
         system.out.println("Drawing a " + this.color + " square")
     end
     
-    function getArea()
+    function getArea() override
         return this.side * this.side
     end
 end
@@ -268,23 +277,23 @@ end
 class Circle extends Shape
     var radius = 0
     
-    function construct(c, r)
+    function construct(c, r) override
         this.color = c
         this.radius = r
     end
     
     # 重写父类方法
-    function draw()
+    function draw() override
         system.out.println("Drawing a " + this.color + " circle")
     end
     
-    function getArea()
+    function getArea() override
         return 3.14159 * this.radius * this.radius
     end
 end
 
 # 多态
-var shapes = {new Square("red", 5), new Circle("blue", 3)}
+var shapes = {new Square{"red", 5}, new Circle{"blue", 3}}
 
 foreach shape in shapes
     shape.draw()
@@ -344,7 +353,7 @@ class Data
     end
 end
 
-var obj = new Data(42)
+var obj = new Data{42}
 
 # 获取引用
 var ref = &obj
@@ -369,8 +378,8 @@ class Node
     end
 end
 
-var node1 = new Node(1)
-var node2 = new Node(2)
+var node1 = new Node{1}
+var node2 = new Node{2}
 
 node1.next = node2
 
@@ -384,7 +393,7 @@ if node1.next != null
 end
 
 # 如果使用 gcnew 创建指针，则使用箭头运算符
-var ptrNode = gcnew Node(3)
+var ptrNode = gcnew Node{3}
 system.out.println(ptrNode->data)  # 3
 ```
 
@@ -408,17 +417,17 @@ system.out.println(*ptr)  # 100
 ## 2.6.8 完整示例：链表实现
 
 ```covscript
-class LinkedList
-    class Node
-        var data = null
-        var next = null
-        
-        function construct(d)
-            this.data = d
-            this.next = null
-        end
-    end
+class Node
+    var data = null
+    var next = null
     
+    function construct(d)
+        this.data = d
+        this.next = null
+    end
+end
+
+class LinkedList
     var head = null
     var size = 0
     
@@ -428,18 +437,18 @@ class LinkedList
     end
     
     function append(data)
-        var newNode = new Node(data)
+        var newNode = gcnew Node{data}
         
         if this.head == null
             this.head = newNode
         else
             var current = this.head
             loop
-                if current.next == null
-                    current.next = newNode
+                if current->next == null
+                    current->next = newNode
                     break
                 end
-                current = current.next
+                current = current->next
             end
         end
         
@@ -456,10 +465,10 @@ class LinkedList
         var output = ""
         
         loop
-            output += to_string(current.data)
-            if current.next != null
+            output += to_string(current->data)
+            if current->next != null
                 output += " -> "
-                current = current.next
+                current = current->next
             else
                 break
             end
@@ -474,14 +483,14 @@ class LinkedList
 end
 
 # 使用链表
-var list = new LinkedList
-list.append(1)
-list.append(2)
-list.append(3)
-list.append(4)
+var lst = new LinkedList
+lst.append(1)
+lst.append(2)
+lst.append(3)
+lst.append(4)
 
-system.out.println("List size: " + to_string(list.getSize()))
-list.display()
+system.out.println("List size: " + to_string(lst.getSize()))
+lst.display()
 ```
 
 ## 面向对象编程最佳实践

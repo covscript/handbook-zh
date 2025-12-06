@@ -1,6 +1,15 @@
 # 2.10 迭代器
 
-迭代器是用于遍历容器元素的对象。CovScript 提供了强大的迭代器支持。
+迭代器是用于遍历容器元素的对象。CovScript 提供了强大的迭代器支持，允许以统一的方式访问不同类型的容器。
+
+**什么是迭代器？** 迭代器是一个指向容器中某个元素的"指针"对象，可以通过它访问当前元素，并移动到下一个元素。迭代器提供了一种抽象的方式来遍历容器，而不需要了解容器的内部实现。
+
+**使用场景：** 
+- 当需要精确控制遍历过程时（如条件跳过、提前结束等）
+- 当需要同时遍历多个容器时
+- 当需要修改遍历过程中的元素时
+
+**注意：** 对于简单的遍历，推荐使用 `foreach` 循环，它更简洁易读。迭代器主要用于需要精细控制的场景。
 
 ## 2.10.1 获取迭代器
 
@@ -253,13 +262,13 @@ list.push_back(2)
 list.push_back(3)
 
 # 使用 foreach（推荐）
-foreach item in list
+foreach item in lst
     system.out.println(item)
 end
 
 # 等价的迭代器写法
-var it = list.begin
-var itEnd = list.end
+var it = lst.begin
+var itEnd = lst.end
 loop
     if it == itEnd
         break
@@ -461,18 +470,18 @@ end
 
 ```covscript
 # 低效：每次都复制迭代器
-function inefficientSum(list)
+function inefficientSum(lst)
     var total = 0
-    for it=list.begin,it != list.end,it.next()
+    for it = lst.begin, it != lst.end, it.next()
         total += it.data
     end
     return total
 end
 
 # 高效：减少迭代器操作
-function efficientSum(list)
+function efficientSum(lst)
     var total = 0
-    foreach item in list
+    foreach item in lst
         total += item
     end
     return total
@@ -483,13 +492,13 @@ end
 
 ```covscript
 # 好的实践：缓存结束迭代器
-var list = new list
-list.push_back(1)
-list.push_back(2)
-list.push_back(3)
+var lst = new list
+lst.push_back(1)
+lst.push_back(2)
+lst.push_back(3)
 
-var it = list.begin
-var itEnd = list.end  # 缓存
+var it = lst.begin
+var itEnd = lst.end  # 缓存
 
 loop
     if it == itEnd
@@ -510,25 +519,25 @@ end
 
 ```covscript
 # 推荐的迭代方式
-var list = new list
-list.push_back(1)
-list.push_back(2)
-list.push_back(3)
+var lst = new list
+lst.push_back(1)
+lst.push_back(2)
+lst.push_back(3)
 
 # 简单遍历：使用 foreach
-foreach item in list
+foreach item in lst
     system.out.println(item)
 end
 
 # 需要索引或修改：使用传统循环
-for i=0,i < list.size,++i
-    var item = list[i]
+for i = 0, i < lst.size, ++i
+    var item = lst[i]
     # 处理 item
 end
 
 # 需要精确控制：使用迭代器
-var it = list.begin
-var itEnd = list.end
+var it = lst.begin
+var itEnd = lst.end
 loop
     if it == itEnd
         break

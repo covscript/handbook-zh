@@ -90,15 +90,6 @@ end
 system.out.println(sum(1, 2, 3))           # 6
 system.out.println(sum(1, 2, 3, 4, 5))     # 15
 system.out.println(sum(10, 20))            # 30
-
-# 可变参数和固定参数混合
-function printWithPrefix(prefix, ...items)
-    foreach item in items
-        system.out.println(prefix + to_string(item))
-    end
-end
-
-printWithPrefix("Item: ", 1, 2, 3, 4)
 ```
 
 ## 2.5.5 Lambda 表达式
@@ -121,11 +112,6 @@ end
 
 var result1 = applyOperation(10, 5, [](a, b) -> a + b)  # 15
 var result2 = applyOperation(10, 5, [](a, b) -> a * b)  # 50
-
-# 捕获外部变量
-var factor = 10
-var multiply = [](x) -> x * factor
-system.out.println(multiply(5))  # 50
 ```
 
 ### Lambda 表达式的高级用法
@@ -167,20 +153,28 @@ var squared = map(numbers, [](x) -> x * x)
 
 ## 2.5.6 函数参数类型标注
 
-**注意：类型标注是 CovScript 4 (ECS) 的特性**，用于强制类型检查，会带来一定的运行时开销。
+**仅 ECS 支持：** 类型标注是 CovScript 4 (ECS) 的特性，CSC 不支持此功能。
+
+类型标注用于在运行时强制检查参数类型，可以提高代码的健壮性，但会带来一定的性能开销。
 
 ```covscript
-# ECS 中的类型标注（强制类型检查）
-function calculateDiscount(price:number, discountRate:number):number
+# ECS 中的类型标注（运行时强制类型检查）
+function calculateDiscount(price:number, discountRate:number)
     return price * (1 - discountRate)
 end
 
 var finalPrice = calculateDiscount(100, 0.2)  # 80
 
-# 如果传入错误类型，会抛出类型错误
-# calculateDiscount("100", 0.2)  # 错误！
+# 如果传入错误类型，会在运行时抛出类型错误
+# calculateDiscount("100", 0.2)  # 运行时错误：类型不匹配
+```
 
-# CSC 中使用注释形式说明类型（仅文档用途）
+**ECS 与 CSC 区别：**
+- **ECS：** 支持 `参数名:类型` 语法，运行时强制检查类型
+- **CSC：** 不支持类型标注，只能通过注释说明类型
+
+```covscript
+# CSC 中使用注释形式说明类型（仅文档用途，无运行时检查）
 function calculateTax(amount, rate)
     # amount: number - 金额
     # rate: number - 税率
@@ -189,6 +183,11 @@ function calculateTax(amount, rate)
     return amount * rate
 end
 ```
+
+**使用建议：**
+- 在性能敏感的代码中，类型标注可能带来额外开销
+- 类型标注主要用于参数验证，不影响 CovScript 的动态类型特性
+- 对于公共 API 和库函数，推荐使用类型标注提高代码可靠性
 
 ## 2.5.7 返回值
 
@@ -308,8 +307,8 @@ system.out.println(fibonacci(10))  # 55
 function listFiles(path, indent)
     var files = system.path.scan(path)
     foreach file in files
-        system.out.println(indent + file)
-        if system.path.is_dir(path + "/" + file)
+        system.out.println(indent + file.name)
+        if system.path.is_directory(path + "/" + file)
             listFiles(path + "/" + file, indent + "  ")
         end
     end

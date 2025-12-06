@@ -46,6 +46,8 @@ constant APP_NAME = "MyApp"
 # PI = 3.14  # 错误！常量不能修改
 ```
 
+注意，由于常量的行为在不同版本的 CovScript 解释器中行为不一致，可能在 `STD26XXXX`（即 2026 年开始）逐渐废弃。请小心使用该特性。
+
 ## 2.1.4 多变量声明
 
 CovScript 支持在一行中声明多个变量。
@@ -78,7 +80,7 @@ var a = 1; var b = 2; var c = 3
 - 变量名必须以字母或下划线开头
 - 变量名可以包含字母、数字和下划线
 - 变量名区分大小写
-- 不能使用 CovScript 的关键字作为变量名
+- 可以使用 CovScript 的关键字作为变量名，但不推荐这样做，因为这样会增加阅读代码的难度
 
 ```covscript
 # 合法的变量名
@@ -90,5 +92,9 @@ var userName = "Alice"
 # 不合法的变量名示例
 # var 2data = 1      # 不能以数字开头
 # var my-var = 2     # 不能包含连字符
-# var function = 3   # 不能使用关键字（如 function, var, if 等）
+# var function = 3   # 不推荐关键字（如 function, var, if 等）
+
+# Unicode 支持（需提前使用 @charset 预处理指令）
+var 姓名 = "张三"
+var 年龄 = 25
 ```

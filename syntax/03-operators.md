@@ -74,34 +74,45 @@ var greaterOrEqual = (x >= 10)   # true
 var lessOrEqual = (x <= 20)      # true
 ```
 
-## 2.3.3 逻辑运算符
-
-逻辑运算符用于布尔逻辑运算。
-
-### 运算符重载
+## 2.3.3 运算符重载
 
 CovScript 支持为自定义类型重载运算符。结构体可以定义 `+`, `-`, `*`, `/`, `==`, `!=` 等运算符的行为。
 
 ```covscript
-struct Vector
+class Vector
     var x = 0
     var y = 0
     
     # 重载加法运算符
-    function operator+(other)
-        return new Vector {x: this.x + other.x, y: this.y + other.y}
+    function op_add(other)
+        var v = new Vector
+        v.x = this.x + other.x
+        v.y = this.y + other.y
+        return v
     end
-    
+
     # 重载乘法运算符（标量乘法）
-    function operator*(scalar)
-        return new Vector {x: this.x * scalar, y: this.y * scalar}
+    function op_mul(scalar)
+        var v = new Vector
+        v.x = this.x * scalar
+        v.y = this.y * scalar
+        return v
     end
 end
 
-var v1 = new Vector {x: 1, y: 2}
-var v2 = new Vector {x: 3, y: 4}
+var v1 = new Vector
+v1.x = 1
+v1.y = 2
+var v2 = new Vector
+v2.x = 3
+v2.y = 4
 var v3 = v1 + v2  # 调用重载的 + 运算符
+var v4 = v3 * 4   # 调用重载的 * 运算符
 ```
+
+## 2.3.4 逻辑运算符
+
+逻辑运算符用于布尔逻辑运算。
 
 ### 逻辑与（AND）
 
@@ -160,7 +171,7 @@ var canDrive = (age >= 18) && hasLicense
 var isAdult = (age >= 18) && (age < 65) && hasLicense
 ```
 
-## 2.3.4 赋值运算符
+## 2.3.5 赋值运算符
 
 ### 基本赋值
 
@@ -190,7 +201,7 @@ num /= 4            # num = num / 4, 结果为 6
 num %= 4            # num = num % 4, 结果为 2
 ```
 
-## 2.3.5 特殊运算符
+## 2.3.6 特殊运算符
 
 ### 点运算符（.）
 
@@ -204,7 +215,7 @@ system.out.println("Hello")
 math.abs(-5)
 
 # 链式访问
-system.console.terminal.clear()
+system.console.clrscr()
 
 # 访问哈希映射（字符串键）
 var map = new hash_map
@@ -267,6 +278,7 @@ var value = *ptr  # 42
 var x = 10
 
 # 获取引用（指针）
+# 取址会延长 x 底层内存的生命周期
 var ptr = &x
 
 # 通过指针修改值
@@ -287,12 +299,6 @@ var third = arr[2]      # 3
 # 字符串索引
 var str = "Hello"
 var ch = str[1]         # 'e'
-
-# 列表索引
-var list = new list
-list.push_back(10)
-list.push_back(20)
-var elem = list[0]      # 10
 
 # 修改元素
 arr[0] = 100

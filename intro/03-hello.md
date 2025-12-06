@@ -10,7 +10,11 @@ CovScript 的源代码有如下几种类型：
  + `*.csp`: CovScript 3 软件包
  + `*.ecs`: CovScript 4 源文件
 
-其中，`*.csc` 和 `*.csp` 能直接运行，无需编译；`*.ecs` 需要编译成 `*.csc` 或 `*.csp` 后才能运行
+其中：
+ + `*.csc` 和 `*.csp` 能直接运行，无需编译
+ + `*.ecs` 文件在运行时会自动编译成 `*.csc` 格式并缓存，也可以手动编译
+
+**ECS 与 CSC 的关系：** CovScript 4 (ECS) 是 CovScript 3 (CSC) 的超集，提供了更多语言特性。ECS 文件编译后生成 CSC 代码（类似于 TypeScript 编译为 JavaScript），可以在 CSC 解释器上运行
 
 ## 1.3.2 第一个程序
 
@@ -40,11 +44,12 @@ Hello, World!
 一个简单的 CovScript 程序通常包含以下内容：
 
 ```covscript
+# 使用 UTF-8 编码集
+@charset: utf8
+# 若在 Windows 上可以使用 @charset: gbk
+
 # 注释：使用 # 符号
 # 这是一个简单的程序示例
-
-# 导入需要的模块（可选）
-import math
 
 # 定义变量
 var name = "Alice"
@@ -56,7 +61,7 @@ system.out.println("年龄：" + to_string(age))
 
 # 简单的计算
 var radius = 5
-var area = math.pi * radius * radius
+var area = math.constants.pi * (radius ^ 2)
 system.out.println("圆的面积：" + to_string(area))
 ```
 
@@ -64,30 +69,34 @@ system.out.println("圆的面积：" + to_string(area))
 
 ### 直接运行
 
-对于 `.csc` 和 `.csp` 文件，可以直接运行：
+对于 `.csc` 文件，可以直接运行：
 
 ```bash
 cs program.csc
 ```
 
-### 运行 ECS 文件
+### 运行 ECS 文件（仅 CovScript 4）
+
+**注意：** 以下功能需要安装 ECS 引导程序（`cspkg install ecs_bootstrap`）。
 
 对于 `.ecs` 文件，可以直接运行，ECS 会自动缓存编译后的文件，只在文件变化时重新编译：
 
 ```bash
-# 直接运行 ECS 文件
+# 直接运行 ECS 文件（自动编译并缓存）
 ecs program.ecs
 ```
 
 也可以显式编译：
 
 ```bash
-# 编译 ECS 文件
+# 编译 ECS 文件为 CSC 格式
 ecs program.ecs -o program.csc
 
 # 运行编译后的文件
 cs program.csc
 ```
+
+**运行原理：** ECS 编译器会将 `.ecs` 文件编译为标准的 `.csc` 字节码，然后由 CSC 解释器执行。编译后的文件会被缓存，只有当源文件修改时才会重新编译
 
 ### 交互式运行
 
@@ -104,7 +113,7 @@ cs
 > var y = 20
 > system.out.println(x + y)
 30
-> exit()
+> quit()
 ```
 
 ## 1.3.5 调试程序
@@ -116,7 +125,3 @@ cs_dbg program.csc
 ```
 
 调试器支持设置断点、单步执行、查看变量等功能。
-
-## 下一步
-
-现在你已经了解了如何编写和运行 CovScript 程序，接下来我们将在 [**贰 · 语法基础**](../syntax/README.md) 章节中深入学习 CovScript 的语法和特性。

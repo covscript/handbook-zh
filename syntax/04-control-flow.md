@@ -69,6 +69,7 @@ else
 end
 
 # 更清晰的写法（推荐）
+# **仅 ECS 支持：** CSC 中需要使用嵌套的 if-else
 if score >= 90
     system.out.println("优秀")
 else if score >= 80
@@ -80,9 +81,30 @@ else
 end
 ```
 
+**ECS 与 CSC 区别：** 
+- **ECS** 支持 `else if` 语法，可以直接链式判断多个条件
+- **CSC** 需要使用嵌套的 `if-else` 结构
+
+```covscript
+# CSC 中的等效写法
+if score >= 90
+    system.out.println("优秀")
+else
+    if score >= 80
+        system.out.println("良好")
+    else
+        if score >= 60
+            system.out.println("及格")
+        else
+            system.out.println("不及格")
+        end
+    end
+end
+```
+
 ## 2.4.2 switch 语句
 
-switch 语句用于多分支选择。
+switch 语句用于多分支选择，不同 case 的类型可以不一样。
 
 ```covscript
 var day = 3
@@ -135,9 +157,11 @@ end
 
 ## 2.4.3 循环语句
 
+CovScript 提供了多种循环结构，适用于不同的场景。
+
 ### while 循环
 
-当条件为真时重复执行代码块。
+当条件为真时重复执行代码块。适用于循环次数不确定的情况。
 
 ```covscript
 # 基本 while 循环
@@ -208,27 +232,29 @@ end
 
 ### for 循环
 
-用于固定次数的循环。注意：CovScript 的 `for` 循环使用逗号分隔，不使用 `var` 关键字。
+用于固定次数的循环。
+
+**重要语法说明：** CovScript 的 `for` 循环使用逗号（`,`）分隔初始化、条件和增量表达式，而不是分号。这是 CovScript 的特殊语法。
 
 ```covscript
 # 基本 for 循环（使用逗号分隔）
-for i=0,i<5,++i
+for i=0, i<5, ++i
     system.out.println("Iteration: " + to_string(i))
 end
 
 # 步长不为1的循环
-for i=0,i<10,i+=2
+for i=0, i<10, i+=2
     system.out.println(i)  # 0, 2, 4, 6, 8
 end
 
 # 倒序循环
-for i=10,i>0,--i
+for i=10, i>0, --i
     system.out.println(i)
 end
 
 # 嵌套循环
-for i=1,i<=3,++i
-    for j=1,j<=3,++j
+for i=1, i<=3, ++i
+    for j=1, j<=3, ++j
         system.out.println(to_string(i) + " * " + to_string(j) + " = " + to_string(i * j))
     end
 end
@@ -262,10 +288,11 @@ scores.insert("Bob", 87)
 scores.insert("Charlie", 92)
 
 foreach item in scores
-    system.out.println(item.first + ": " + to_string(item.second))
+    system.out.println(item.key + ": " + to_string(item.value))
 end
 
 # 遍历字符串
+# 字符串比较特殊，无法在 foreach 循环中修改值
 var text = "Hello"
 foreach ch in text
     system.out.println(ch)
@@ -280,7 +307,7 @@ end
 
 ```covscript
 # 跳过偶数
-for i=1,i<=10,++i
+for i=1, i<=10, ++i
     if i % 2 == 0
         continue
     end
@@ -312,8 +339,8 @@ foreach num in numbers
 end
 
 # 在嵌套循环中使用（只退出内层循环）
-for i=0,i<5,++i
-    for j=0,j<5,++j
+for i=0, i<5, ++i
+    for j=0, j<5, ++j
         if j == 3
             break  # 只退出内层循环
         end
@@ -328,7 +355,7 @@ end
 
 ```covscript
 function findMax(arr)
-    if arr.empty
+    if arr.empty()
         return null
     end
     
