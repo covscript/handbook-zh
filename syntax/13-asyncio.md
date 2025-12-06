@@ -21,8 +21,6 @@ CovScript 提供了强大的协程和异步编程支持，让开发者能够编�
 使用 `fiber.create()` 创建协程。
 
 ```covscript
-
-
 # 创建一个简单的协程
 var f = fiber.create([]() {
     system.out.println("协程开始执行")
@@ -56,8 +54,6 @@ system.out.println("主程序：结束")
 3. **fiber.resume(fiber)** - 恢复协程的执行
 
 ```covscript
-
-
 # 带参数的协程
 var counter = fiber.create([](name, count) {
     for i = 0, i < count, ++i
