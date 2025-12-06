@@ -494,7 +494,7 @@ end
 
 ```covscript
 # 设置源文件字符集
-@charset "utf-8"
+@charset: utf8
 
 # 现在可以使用UTF-8字符
 var greeting = "你好，世界！"

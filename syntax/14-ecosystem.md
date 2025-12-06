@@ -180,7 +180,7 @@ class ChatServer
             loop
                 try
                     var data = c.recv(1024)
-                    if data.empty
+                    if data.empty()
                         break
                     end
                     

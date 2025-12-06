@@ -544,11 +544,11 @@ class QueryBuilder
         
         sql += " FROM " + this.table
         
-        if !this.whereClause.empty
+        if !this.whereClause.empty()
             sql += " WHERE " + this.whereClause
         end
         
-        if !this.orderBy.empty
+        if !this.orderBy.empty()
             sql += " ORDER BY " + this.orderBy
         end
         

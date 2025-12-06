@@ -165,8 +165,8 @@ var map = new hash_map
 # 添加键值对
 map.insert("name", "Alice")
 map.insert("age", 25)
-# 访问不存在的键会自动创建索引
-map.insert["city"] = "Shanghai"
+# 访问不存在的键会自动创建
+map["city"] = "Shanghai"
 
 # 访问元素（可以使用 .at 或下标语法）
 var name = map.at("name")
