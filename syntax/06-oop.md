@@ -122,7 +122,8 @@ class Student
     end
 end
 
-# 使用构造函数创建对象：new ClassName{参数列表}
+# 使用构造函数创建对象
+# **仅 ECS 支持：** 使用 new ClassName{参数列表} 语法
 var student1 = new Student{"Alice", 18, "A"}
 var student2 = new Student{"Bob", 19, "B"}
 

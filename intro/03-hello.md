@@ -14,7 +14,7 @@ CovScript 的源代码有如下几种类型：
  + `*.csc` 和 `*.csp` 能直接运行，无需编译
  + `*.ecs` 文件在运行时会自动编译成 `*.csc` 格式并缓存，也可以手动编译
 
-**ECS 与 CSC 的关系：** CovScript 4 (ECS) 是 CovScript 3 (CSC) 的超集，提供了更多语言特性。ECS 文件编译后生成标准的 CSC 字节码，可以在 CSC 解释器上运行
+**ECS 与 CSC 的关系：** CovScript 4 (ECS) 是 CovScript 3 (CSC) 的超集，提供了更多语言特性。ECS 文件编译后生成 CSC 代码（类似于 TypeScript 编译为 JavaScript），可以在 CSC 解释器上运行
 
 ## 1.3.2 第一个程序
 

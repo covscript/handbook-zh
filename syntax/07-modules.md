@@ -13,6 +13,8 @@ CovScript 提供了强大的模块系统，用于组织和复用代码。模块�
 
 使用 `package` 关键字定义包，将相关的函数、类和变量组织在一起。
 
+**ECS 特性：** 在 ECS 文件（`.ecs`）中，如果声明了 `package`，编译时会自动生成 `.csp` 文件（CovScript 包文件），而不是普通的 `.csc` 文件。
+
 ```covscript
 # math_utils.csp
 package math_utils
