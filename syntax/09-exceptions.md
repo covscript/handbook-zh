@@ -423,7 +423,7 @@ class HttpClient
     function get(url)
         try
             # 验证 URL
-            if url == null || url.empty
+            if url == null || url.empty()
                 throw new InvalidArgumentException{"url", "URL cannot be empty"}
             end
             
@@ -467,7 +467,7 @@ end
 ```covscript
 class Validator
     function validateEmail(email)
-        if email == null || email.empty
+        if email == null || email.empty()
             throw new InvalidArgumentException{"email", "cannot be empty"}
         end
         
