@@ -45,8 +45,8 @@ Hello, World!
 
 ```covscript
 # 使用 UTF-8 编码集
-@charset "utf-8"
-# 若在 Windows 上可以使用 @charset "gbk"
+@charset: utf8
+# 若在 Windows 上可以使用 @charset: gbk
 
 # 注释：使用 # 符号
 # 这是一个简单的程序示例
