@@ -271,7 +271,7 @@ end
 
 ## 2.14.2 csdbc - 数据库操作
 
-`csdbc` 提供了统一的数据库访问接口，支持 SQLite、MySQL、PostgreSQL 等数据库。
+`csdbc` 提供了统一的数据库访问接口，支持 SQLite、MySQL 等数据库。
 
 ### 安装
 
@@ -282,71 +282,92 @@ cspkg install csdbc
 ### SQLite 基础操作
 
 ```covscript
-import csdbc
+import csdbc_sqlite as csdbc
 
 # 连接到 SQLite 数据库
-var db = csdbc.connect("sqlite", "mydata.db")
+var db = csdbc.connect("mydata.db")
 
-try
-    # 创建表
-    db.execute("CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
-        email TEXT UNIQUE,
-        age INTEGER
-    )")
-    
-    # 插入数据
-    db.execute("INSERT INTO users (name, email, age) VALUES (?, ?, ?)",
-               {"Alice", "alice@example.com", 25})
-    db.execute("INSERT INTO users (name, email, age) VALUES (?, ?, ?)",
-               {"Bob", "bob@example.com", 30})
-    db.execute("INSERT INTO users (name, email, age) VALUES (?, ?, ?)",
-               {"Charlie", "charlie@example.com", 35})
-    
-    system.out.println("数据插入成功")
-    
-    # 查询数据
-    var result = db.query("SELECT * FROM users")
-    
-    system.out.println("用户列表:")
-    foreach row in result
-        system.out.println("ID: " + to_string(row["id"]) +
-                         ", 姓名: " + row["name"] +
-                         ", 邮箱: " + row["email"] +
-                         ", 年龄: " + to_string(row["age"]))
-    end
-    
-    # 更新数据
-    db.execute("UPDATE users SET age = ? WHERE name = ?", {26, "Alice"})
-    system.out.println("数据更新成功")
-    
-    # 删除数据
-    db.execute("DELETE FROM users WHERE age > ?", {30})
-    system.out.println("数据删除成功")
-    
-catch e
-    system.out.println("数据库错误: " + to_string(e))
-finally
-    # 关闭连接
-    db.close()
+# 创建表
+var create_sql = "CREATE TABLE IF NOT EXISTS users (" +
+                "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                "name TEXT NOT NULL, " +
+                "email TEXT UNIQUE, " +
+                "age INTEGER)"
+db.just_exec(create_sql)
+
+# 插入数据 - 使用预处理语句
+var stmt = db.prepare("INSERT INTO users (name, email, age) VALUES (?, ?, ?)")
+stmt.bind(1, "Alice")
+stmt.bind(2, "alice@example.com")
+stmt.bind(3, "25")
+stmt.just_exec()
+
+# 批量插入
+var users = {
+    {"Bob", "bob@example.com", "30"},
+    {"Charlie", "charlie@example.com", "35"}
+}
+
+foreach user in users
+    var insert_stmt = db.prepare("INSERT INTO users (name, email, age) VALUES (?, ?, ?)")
+    insert_stmt.bind(1, user[0])
+    insert_stmt.bind(2, user[1])
+    insert_stmt.bind(3, user[2])
+    insert_stmt.just_exec()
 end
+
+system.out.println("数据插入成功")
+
+# 查询数据
+var query_stmt = db.prepare("SELECT * FROM users")
+var result = query_stmt.exec()
+
+system.out.println("用户列表:")
+foreach row in result
+    system.out.print("ID: " + row[0])
+    system.out.print(", 姓名: " + row[1])
+    system.out.print(", 邮箱: " + row[2])
+    system.out.println(", 年龄: " + row[3])
+end
+
+# 更新数据
+var update_stmt = db.prepare("UPDATE users SET age = ? WHERE name = ?")
+update_stmt.bind(1, "26")
+update_stmt.bind(2, "Alice")
+update_stmt.just_exec()
+system.out.println("数据更新成功")
+
+# 删除数据
+var delete_stmt = db.prepare("DELETE FROM users WHERE age > ?")
+delete_stmt.bind(1, "30")
+delete_stmt.just_exec()
+system.out.println("数据删除成功")
 ```
 
 ### 事务处理
 
 ```covscript
-import csdbc
+import csdbc_sqlite as csdbc
 
-var db = csdbc.connect("sqlite", "mydata.db")
+var db = csdbc.connect("mydata.db")
+
+# 创建账户表
+db.just_exec("CREATE TABLE IF NOT EXISTS accounts (id INTEGER PRIMARY KEY, name TEXT, balance INTEGER)")
 
 try
     # 开始事务
-    db.beginTransaction()
+    db.just_exec("BEGIN TRANSACTION")
     
     # 执行多个操作
-    db.execute("INSERT INTO accounts (name, balance) VALUES (?, ?)", {"账户A", 1000})
-    db.execute("INSERT INTO accounts (name, balance) VALUES (?, ?)", {"账户B", 500})
+    var stmt1 = db.prepare("INSERT INTO accounts (name, balance) VALUES (?, ?)")
+    stmt1.bind(1, "账户A")
+    stmt1.bind(2, "1000")
+    stmt1.just_exec()
+    
+    var stmt2 = db.prepare("INSERT INTO accounts (name, balance) VALUES (?, ?)")
+    stmt2.bind(1, "账户B")
+    stmt2.bind(2, "500")
+    stmt2.just_exec()
     
     # 转账操作
     db.execute("UPDATE accounts SET balance = balance - ? WHERE name = ?", {200, "账户A"})
@@ -487,180 +508,273 @@ cspkg install imgui
 
 ```covscript
 import imgui
+import imgui_font
+using imgui
 
-# 初始化窗口
-imgui.init("我的应用", 800, 600)
+# 创建窗口应用
+var app = window_application(800, 600, "CovScript ImGui 应用")
+
+# 添加中文字体支持
+var font = add_font_extend_cn(imgui_font.source_han_sans, 32)
+set_font_scale(0.5)
+
+var window_opened = true
 
 # 主循环
-loop
-    # 开始新帧
-    if !imgui.beginFrame()
-        break  # 窗口关闭
-    end
+while !app.is_closed()
+    app.prepare()
     
-    # 创建窗口
-    imgui.begin("Hello Window")
+    push_font(font)
     
-    # 显示文本
-    imgui.text("Hello, CovScript!")
-    imgui.text("这是一个 ImGui 窗口")
+    # 开始窗口
+    begin_window("Hello 窗口", window_opened, {flags.always_auto_resize})
+        if !window_opened
+            break
+        end
+        
+        text("欢迎使用 CovScript ImGui!")
+        separator()
+        
+        if button("点击我")
+            system.out.println("按钮被点击!")
+        end
+    end_window()
     
-    # 按钮
-    if imgui.button("点击我")
-        system.out.println("按钮被点击!")
-    end
-    
-    imgui.end()
-    
-    # 渲染帧
-    imgui.endFrame()
+    pop_font()
+    window_opened = true
+    app.render()
 end
-
-# 清理
-imgui.shutdown()
 ```
 
 ### 交互控件
 
 ```covscript
 import imgui
+import imgui_font
+using imgui
 
-imgui.init("控件示例", 800, 600)
+var app = window_application(800, 600, "控件示例")
+var font = add_font_extend_cn(imgui_font.source_han_sans, 32)
+set_font_scale(0.5)
 
 # 状态变量
-var counter = 0
-var text = "输入文本"
-var slider_value = 0.5
-var checkbox_state = false
-var color = {1.0, 0.0, 0.0, 1.0}  # RGBA
+var progress = 0.0
+var radio_choice = 0
+var combo_choice = 1
+var texts = new string
+var window_opened = true
 
-loop
-    if !imgui.beginFrame()
-        break
-    end
+while !app.is_closed()
+    app.prepare()
+    push_font(font)
     
-    imgui.begin("控件演示")
+    begin_window("控件演示", window_opened, {flags.always_auto_resize})
+        if !window_opened
+            break
+        end
+        
+        # 滑动条和进度条
+        slider_float("进度条", progress, 0, 1)
+        progress_bar(progress, "进度")
+        separator()
+        
+        # 折线图
+        plot_lines("折线图", "", {1, 3, 2, 3, 1})
+        separator()
+        
+        # 单选按钮
+        radio_button("选项 A", radio_choice, 0)
+        same_line()
+        radio_button("选项 B", radio_choice, 1)
+        same_line()
+        radio_button("选项 C", radio_choice, 2)
+        
+        switch radio_choice
+            case 0
+                text("你选择了 A")
+            end
+            case 1
+                text("你选择了 B")
+            end
+            case 2
+                text("你选择了 C")
+            end
+        end
+        separator()
+        
+        # 下拉框
+        combo_box("选择主题", combo_choice, {"经典", "亮色", "暗色"})
+        switch combo_choice
+            case 0
+                style_color_classic()
+            end
+            case 1
+                style_color_light()
+            end
+            case 2
+                style_color_dark()
+            end
+        end
+        separator()
+        
+        # 多行文本输入
+        input_text_multiline_s("##input", texts, 512, {flags.allow_tab})
+        
+    end_window()
     
-    # 文本输入
-    text = imgui.inputText("文本框", text)
-    
-    # 滑动条
-    slider_value = imgui.slider("滑动条", slider_value, 0.0, 1.0)
-    imgui.text("值: " + to_string(slider_value))
-    
-    # 复选框
-    checkbox_state = imgui.checkbox("复选框", checkbox_state)
-    
-    # 计数器
-    imgui.text("计数: " + to_string(counter))
-    if imgui.button("增加")
-        counter += 1
-    end
-    imgui.sameLine()
-    if imgui.button("减少")
-        counter -= 1
-    end
-    
-    # 颜色选择器
-    color = imgui.colorEdit("颜色", color)
-    
-    # 分隔线
-    imgui.separator()
-    
-    # 显示 FPS
-    imgui.text("FPS: " + to_string(imgui.getFPS()))
-    
-    imgui.end()
-    
-    imgui.endFrame()
+    pop_font()
+    window_opened = true
+    app.render()
 end
-
-imgui.shutdown()
 ```
 
-### 复杂布局
+### 窗口属性和布局
 
 ```covscript
 import imgui
+import imgui_font
+using imgui
 
-imgui.init("布局示例", 1200, 800)
+var app = window_application(0.75 * get_monitor_width(0), 
+                             0.75 * get_monitor_height(0), 
+                             "布局示例")
+var font = add_font_extend_cn(imgui_font.source_han_sans, 32)
+set_font_scale(0.5)
 
-var leftPanelWidth = 300
-var items = {"项目 1", "项目 2", "项目 3", "项目 4", "项目 5"}
-var selectedItem = 0
+var window_opened = true
 
-loop
-    if !imgui.beginFrame()
-        break
-    end
+while !app.is_closed()
+    app.prepare()
+    push_font(font)
     
-    # 主菜单栏
-    if imgui.beginMenuBar()
-        if imgui.beginMenu("文件")
-            if imgui.menuItem("打开")
-                system.out.println("打开文件")
-            end
-            if imgui.menuItem("保存")
-                system.out.println("保存文件")
-            end
-            imgui.separator()
-            if imgui.menuItem("退出")
-                break
-            end
-            imgui.endMenu()
+    begin_window("主窗口", window_opened, {flags.always_auto_resize})
+        if !window_opened
+            break
         end
         
-        if imgui.beginMenu("编辑")
-            if imgui.menuItem("撤销")
-                system.out.println("撤销")
-            end
-            if imgui.menuItem("重做")
-                system.out.println("重做")
-            end
-            imgui.endMenu()
-        end
+        text("窗口位置和大小演示")
+        separator()
         
-        imgui.endMenuBar()
-    end
+        # 获取窗口属性
+        var pos = {get_window_pos_x(), get_window_pos_y()}
+        var size = {get_window_width(), get_window_height()}
+        
+        text("位置: (" + to_string(pos[0]) + ", " + to_string(pos[1]) + ")")
+        text("大小: " + to_string(size[0]) + " x " + to_string(size[1]))
+        
+    end_window()
     
-    # 左侧面板
-    imgui.begin("侧边栏", leftPanelWidth, -1)
+    # 创建浮动窗口
+    begin_window("浮动窗口", window_opened, {flags.no_title_bar, flags.no_move})
+        set_window_pos(vec2(pos[0] + size[0] + 10, pos[1]))
+        set_window_size(vec2(200, 100))
+        text("这是一个固定位置的窗口")
+    end_window()
     
-    imgui.text("导航")
-    imgui.separator()
-    
-    # 列表框
-    selectedItem = imgui.listBox("项目列表", selectedItem, items)
-    
-    if imgui.button("添加项目")
-        var newItem = "项目 " + to_string(items.size + 1)
-        items.push_back(newItem)
-    end
-    
-    imgui.end()
-    
-    # 主内容区域
-    imgui.setNextWindowPos(leftPanelWidth, 0)
-    imgui.setNextWindowSize(1200 - leftPanelWidth, 800)
-    imgui.begin("主区域")
-    
-    imgui.text("选中的项目: " + items[selectedItem])
-    
-    # 子窗口
-    imgui.beginChild("内容区", 0, 400, true)
-    
-    for i = 0, i < 50, ++i
-        imgui.text("内容行 " + to_string(i))
-    end
-    
-    imgui.endChild()
-    
-    imgui.end()
-    
-    imgui.endFrame()
+    pop_font()
+    window_opened = true
+    app.render()
+end
+```
+
+### 实际应用：简单文本编辑器
+
+```covscript
+import imgui
+import imgui_font
+using imgui
+
+var app = window_application(900, 600, "文本编辑器")
+var font = add_font_extend_cn(imgui_font.source_han_sans, 24)
+set_font_scale(0.6)
+
+var content = new string
+var filename = "untitled.txt"
+var window_opened = true
+
+function save_file(path, text)
+    var file = iostream.fstream(path, iostream.openmode.out)
+    file.print(text)
+    file.close()
+    system.out.println("文件已保存: " + path)
 end
 
-imgui.shutdown()
+function load_file(path)
+    var file = iostream.fstream(path, iostream.openmode.in)
+    var text = new string
+    loop
+        var line = file.getline()
+        if file.eof()
+            break
+        end
+        text += line + "\n"
+    end
+    file.close()
+    return text
+end
+
+while !app.is_closed()
+    app.prepare()
+    push_font(font)
+    
+    begin_window("编辑器", window_opened, {})
+        if !window_opened
+            break
+        end
+        
+        text("文件: " + filename)
+        separator()
+        
+        # 菜单按钮
+        if button("保存")
+            save_file(filename, content)
+        end
+        same_line()
+        if button("另存为...")
+            # 实际应用中这里应该有文件对话框
+            save_file("output.txt", content)
+        end
+        same_line()
+        if button("加载")
+            # 实际应用中这里应该有文件对话框
+            if system.path.exist(filename)
+                content = load_file(filename)
+            end
+        end
+        
+        separator()
+        
+        # 文本编辑区域
+        input_text_multiline_s("##editor", content, 4096, 
+                              {flags.allow_tab})
+        
+        separator()
+        text("字符数: " + to_string(content.size))
+        
+    end_window()
+    
+    pop_font()
+    window_opened = true
+    app.render()
+end
+```
+
+### 获取显示器信息
+
+```covscript
+import imgui
+using imgui
+
+# 获取主显示器信息
+var monitor_count = get_monitor_count()
+system.out.println("显示器数量: " + to_string(monitor_count))
+
+for i = 0, i < monitor_count, ++i
+    var width = get_monitor_width(i)
+    var height = get_monitor_height(i)
+    system.out.println("显示器 " + to_string(i) + ": " + 
+                      to_string(width) + " x " + to_string(height))
+end
 ```
 
 ## 2.14.4 ecs - 实体组件系统
