@@ -12,73 +12,124 @@ CovScript 拥有丰富的扩展库生态系统，提供网络编程、数据库�
 cspkg install network
 ```
 
-### TCP 服务器
+### 异步网络编程
+
+CovScript Network 支持异步 I/O 操作，可以高效处理多个并发连接。
+
+```covscript
+import network.tcp as tcp
+import network.async as async
+
+# 等待异步状态完成或超时
+function wait_for(state, timeout)
+    var start_time = runtime.time()
+    loop
+        # 轮询待处理的异步事件
+        async.poll_once()
+        # 检查是否超时
+        if runtime.time() - start_time >= timeout
+            break
+        end
+        # 减少 CPU 占用
+        runtime.delay(10)
+    until state.has_done()
+    return state.has_done()
+end
+
+# 创建工作守卫以确保异步会话有效
+var guard = new async.work_guard
+var state = null
+
+# 创建 TCP socket
+var sock = new tcp.socket
+# 创建 TCP acceptor 监听端口 1024
+var acpt = tcp.acceptor(tcp.endpoint_v4(1024))
+
+# 提交异步 accept 会话
+state = async.accept(sock, acpt)
+loop
+    system.out.println("等待客户端连接...")
+until wait_for(state, 1000)
+
+# 处理错误
+if state.get_error() != null
+    system.out.println("错误: " + state.get_error())
+    system.exit(-1)
+end
+
+system.out.println("连接已建立")
+
+# 准备新的异步状态对象用于读取数据
+state = new async.state
+
+# 循环读取数据
+loop
+    # 提交异步读取操作，直到遇到分隔符 "\r\n"
+    async.read_until(sock, state, "\r\n")
+    loop
+        system.out.println("接收数据...")
+    until wait_for(state, 1000)
+    
+    if state.get_error() != null
+        system.out.println("错误: " + state.get_error())
+        system.exit(-1)
+    end
+    
+    # 输出接收到的数据
+    system.out.print(state.get_result())
+end
+```
+
+### TCP 服务器（同步模式）
 
 ```covscript
 import network
+using network
 
-# 创建 TCP 服务器
-var server = network.tcp.server()
+# 创建 UDP socket
+var sock = new udp.socket
+sock.open_v4()
+sock.bind(udp.endpoint_v4(8080))
 
-# 绑定到地址和端口
-server.bind("127.0.0.1", 8080)
-
-# 开始监听
-server.listen(5)  # 最大连接队列长度
-
-system.out.println("服务器启动在 127.0.0.1:8080")
+system.out.println("TCP 服务器启动在端口 8080")
 
 loop
-    # 接受客户端连接
-    var client = server.accept()
-    system.out.println("客户端已连接")
+    var ep = udp.endpoint_v4(0)
+    var data = sock.receive_from(1024, ep)
+    system.out.println("收到: " + data)
     
-    try
-        # 接收数据
-        var data = client.recv(1024)
-        system.out.println("收到: " + data)
-        
-        # 发送响应
-        var response = "Hello from server!"
-        client.send(response)
-        
-    catch e
-        system.out.println("错误: " + to_string(e))
-    finally
-        # 关闭连接
-        client.close()
-    end
+    # 发送响应
+    sock.send_to("服务器收到: " + data, ep)
 end
-
-server.close()
 ```
 
 ### TCP 客户端
 
 ```covscript
 import network
+using network
 
 # 创建 TCP 客户端
-var client = network.tcp.client()
+var sock = new tcp.socket
+var ep = tcp.endpoint_v4("127.0.0.1", 8080)
 
 try
-    # 连接到服务器
-    client.connect("127.0.0.1", 8080)
+    sock.connect(ep)
     system.out.println("已连接到服务器")
     
     # 发送数据
-    var message = "Hello, Server!"
-    client.send(message)
+    var message = "Hello, Server!\r\n"
+    sock.send(message)
     system.out.println("已发送: " + message)
     
     # 接收响应
-    var response = client.recv(1024)
+    var response = sock.receive(1024)
     system.out.println("收到响应: " + response)
     
 catch e
     system.out.println("连接失败: " + to_string(e))
 finally
-    client.close()
+    sock.close()
 end
 ```
 
@@ -86,47 +137,43 @@ end
 
 ```covscript
 import network
+using network
 
 # UDP 服务器
 function udpServer()
-    var sock = network.udp.socket()
-    sock.bind("127.0.0.1", 9000)
+    var sock = new udp.socket
+    sock.open_v4()
+    sock.bind(udp.endpoint_v4(9000))
     
-    system.out.println("UDP 服务器启动在 127.0.0.1:9000")
+    system.out.println("UDP 服务器启动在端口 9000")
     
-    for i = 0, i < 5, ++i
-        # 接收数据和客户端地址
-        var result = sock.recvfrom(1024)
-        var data = result[0]
-        var addr = result[1]
-        var port = result[2]
+    loop
+        var ep = udp.endpoint_v4(0)
+        var data = sock.receive_from(1024, ep)
         
-        system.out.println("从 " + addr + ":" + to_string(port) + " 收到: " + data)
+        system.out.println("收到: " + data)
         
         # 发送回复
-        var response = "收到消息: " + data
-        sock.sendto(response, addr, port)
+        sock.send_to("服务器收到: " + data, ep)
     end
-    
-    sock.close()
 end
 
 # UDP 客户端
 function udpClient()
-    var sock = network.udp.socket()
+    var sock = new udp.socket
+    sock.open_v4()
     
-    var serverAddr = "127.0.0.1"
-    var serverPort = 9000
+    var serverEp = udp.endpoint_v4("127.0.0.1", 9000)
     
     for i = 1, i <= 5, ++i
         # 发送数据
         var message = "消息 " + to_string(i)
-        sock.sendto(message, serverAddr, serverPort)
+        sock.send_to(message, serverEp)
         system.out.println("已发送: " + message)
         
         # 接收响应
-        var result = sock.recvfrom(1024)
-        var response = result[0]
+        var ep = udp.endpoint_v4(0)
+        var response = sock.receive_from(1024, ep)
         system.out.println("收到响应: " + response)
         
         runtime.delay(1000)
@@ -920,14 +967,23 @@ SM3 是中国国家密码管理局发布的密码杂凑算法。
 ```covscript
 import gmssl
 
-# 计算 SM3 哈希
+# 计算 SM3 哈希（返回字节数组）
 var text = "Hello, CovScript!"
-var hash = gmssl.sm3(text)
-system.out.println("SM3 哈希: " + hash)
+var hash_bytes = gmssl.sm3(gmssl.bytes_encode(text))
+var hash_hex = gmssl.hex_encode(hash_bytes)
+system.out.println("SM3 哈希: " + hash_hex)
 
-# 对文件计算 SM3 哈希
-var fileHash = gmssl.sm3_file("document.pdf")
-system.out.println("文件 SM3 哈希: " + fileHash)
+# SM3 HMAC
+var key = "secret_key"
+var hmac = gmssl.sm3_hmac(gmssl.bytes_encode(key), gmssl.bytes_encode(text))
+system.out.println("SM3 HMAC: " + gmssl.hex_encode(hmac))
+
+# SM3 PBKDF2 - 基于密码的密钥派生
+var password = "my_password"
+var salt = "covscript"
+var iterations = 5
+var key_bytes = gmssl.sm3_pbkdf2(password, salt, iterations, gmssl.sm4_key_size)
+system.out.println("派生密钥: " + gmssl.hex_encode(key_bytes))
 ```
 
 ### SM4 对称加密
@@ -937,23 +993,26 @@ SM4 是一种分组密码算法，分组长度为 128 位，密钥长度为 128 
 ```covscript
 import gmssl
 
-# 生成密钥
-var key = gmssl.sm4_generate_key()
-system.out.println("生成的密钥: " + key)
+# 生成密钥和初始化向量
+var key = gmssl.rand_bytes(gmssl.sm4_key_size)
+var iv = gmssl.rand_bytes(gmssl.sm4_key_size)
 
-# 加密数据
+# 使用 CTR 模式加密
 var plaintext = "机密信息"
-var ciphertext = gmssl.sm4_encrypt(plaintext, key)
-system.out.println("加密后: " + ciphertext)
+var plaintext_encoded = gmssl.base64_encode(plaintext)
+var ciphertext = gmssl.sm4(gmssl.sm4_mode.ctr_encrypt, key, iv, gmssl.bytes_encode(plaintext_encoded))
+
+system.out.println("加密后: " + gmssl.hex_encode(ciphertext))
 
 # 解密数据
-var decrypted = gmssl.sm4_decrypt(ciphertext, key)
+var decrypted_bytes = gmssl.sm4(gmssl.sm4_mode.ctr_decrypt, key, iv, ciphertext)
+var decrypted = gmssl.base64_decode(gmssl.bytes_decode(decrypted_bytes))
 system.out.println("解密后: " + decrypted)
 
 # 使用 CBC 模式加密
-var iv = gmssl.generate_iv()  # 生成初始化向量
-var encrypted_cbc = gmssl.sm4_encrypt_cbc(plaintext, key, iv)
-var decrypted_cbc = gmssl.sm4_decrypt_cbc(encrypted_cbc, key, iv)
+var ciphertext_cbc = gmssl.sm4(gmssl.sm4_mode.cbc_encrypt, key, iv, gmssl.bytes_encode(plaintext_encoded))
+var decrypted_cbc = gmssl.base64_decode(gmssl.bytes_decode(gmssl.sm4(gmssl.sm4_mode.cbc_decrypt, key, iv, ciphertext_cbc)))
+system.out.println("CBC 解密: " + decrypted_cbc)
 ```
 
 ### SM2 非对称加密
@@ -964,29 +1023,36 @@ SM2 是基于椭圆曲线的公钥密码算法，包括数字签名、密钥交�
 import gmssl
 
 # 生成 SM2 密钥对
-var keypair = gmssl.sm2_generate_keypair()
-var publicKey = keypair["public"]
-var privateKey = keypair["private"]
+var keypair = gmssl.sm2_keygen()
+var publicKey = keypair.public_key
+var privateKey = keypair.private_key
 
-system.out.println("公钥: " + publicKey)
-system.out.println("私钥: " + privateKey)
+# 将密钥保存为 PEM 格式
+gmssl.sm2_pem_write("public.pem", gmssl.pem_name_pbk, publicKey)
+gmssl.sm2_pem_write("private.pem", gmssl.pem_name_pvk, privateKey)
+
+# 从 PEM 文件读取密钥
+var loaded_pubkey = gmssl.sm2_pem_read("public.pem", gmssl.pem_name_pbk)
+var loaded_privkey = gmssl.sm2_pem_read("private.pem", gmssl.pem_name_pvk)
 
 # 使用公钥加密
 var message = "重要消息"
-var encrypted = gmssl.sm2_encrypt(message, publicKey)
-system.out.println("加密结果: " + encrypted)
+var encrypted = gmssl.sm2_encrypt(loaded_pubkey, gmssl.bytes_encode(message))
+system.out.println("加密结果: " + gmssl.base64_encode(encrypted))
 
-# 使用私钥解密
-var decrypted = gmssl.sm2_decrypt(encrypted, privateKey)
+# 使用私钥解密（需要密码保护）
+var keypass = "password"
+var decrypted_bytes = gmssl.sm2_decrypt(loaded_privkey, keypass, encrypted)
+var decrypted = gmssl.bytes_decode(decrypted_bytes)
 system.out.println("解密结果: " + decrypted)
 
 # 数字签名
-var data = "需要签名的数据"
-var signature = gmssl.sm2_sign(data, privateKey)
-system.out.println("签名: " + signature)
+var data = gmssl.bytes_encode("需要签名的数据")
+var signature = gmssl.sm2_sign(loaded_privkey, keypass, data)
+system.out.println("签名: " + gmssl.base64_encode(signature))
 
 # 验证签名
-var isValid = gmssl.sm2_verify(data, signature, publicKey)
+var isValid = gmssl.sm2_verify(loaded_pubkey, data, signature)
 if isValid
     system.out.println("签名验证成功")
 else
@@ -994,76 +1060,139 @@ else
 end
 ```
 
-### 实际应用：安全通信
+### 实际应用：基于国密的 TLS 实现
+
+基于 `simple_tls.csp` 包的安全通信实现：
+
+```covscript
+import simple_tls
+import network
+
+# 服务器端
+class TLSServer
+    var server = null
+    
+    function start(pkey_path, vkey_path, keypass, addr, port)
+        this.server = new simple_tls.server
+        this.server.listen(pkey_path, vkey_path, keypass, addr, port)
+        
+        system.out.println("TLS 服务器启动")
+        system.out.println("指纹: " + this.server.fingerprint())
+        
+        if this.server.accept()
+            system.out.println("客户端已连接")
+            return true
+        else
+            system.out.println("连接失败")
+            return false
+        end
+    end
+    
+    function send(data)
+        this.server.send(data)
+    end
+    
+    function receive()
+        return this.server.receive()
+    end
+    
+    function close()
+        this.server.close()
+    end
+end
+
+# 客户端
+class TLSClient
+    var client = null
+    
+    function connect(addr, port, authorized_fingerprint)
+        this.client = new simple_tls.client
+        # 添加授权的服务器指纹
+        this.client.authorized_keys.insert(authorized_fingerprint)
+        
+        if this.client.connect(addr, port)
+            system.out.println("已连接到服务器")
+            return true
+        else
+            system.out.println("连接失败")
+            return false
+        end
+    end
+    
+    function send(data)
+        this.client.send(data)
+    end
+    
+    function receive()
+        return this.client.receive()
+    end
+    
+    function close()
+        this.client.close()
+    end
+end
+
+# 使用示例（服务器）
+# 首先生成密钥对：
+# var keypair = gmssl.sm2_keygen()
+# gmssl.sm2_pem_write("server_pub.pem", gmssl.pem_name_pbk, keypair.public_key)
+# gmssl.sm2_pem_write("server_priv.pem", gmssl.pem_name_pvk, keypair.private_key)
+
+var server = new TLSServer{}
+if server.start("server_pub.pem", "server_priv.pem", "password", "0.0.0.0", 8443)
+    # 接收并回显消息
+    var message = server.receive()
+    system.out.println("收到: " + message)
+    server.send("服务器收到: " + message)
+    server.close()
+end
+
+# 使用示例（客户端）
+var client = new TLSClient{}
+var server_fingerprint = "..." # 从服务器获取的指纹
+if client.connect("127.0.0.1", 8443, server_fingerprint)
+    client.send("Hello, TLS Server!")
+    var response = client.receive()
+    system.out.println("响应: " + response)
+    client.close()
+end
+```
+
+### 编码工具函数
+
+GMSSL 提供了多种编码/解码工具：
 
 ```covscript
 import gmssl
 
-class SecureChannel
-    var localPrivateKey = null
-    var localPublicKey = null
-    var remotePublicKey = null
-    var sessionKey = null
-    
-    function construct()
-        # 生成本地密钥对
-        var keypair = gmssl.sm2_generate_keypair()
-        this.localPrivateKey = keypair["private"]
-        this.localPublicKey = keypair["public"]
-    end
-    
-    function getPublicKey()
-        return this.localPublicKey
-    end
-    
-    function setRemotePublicKey(pubKey)
-        this.remotePublicKey = pubKey
-        # 生成会话密钥（使用 SM4）
-        this.sessionKey = gmssl.sm4_generate_key()
-    end
-    
-    function sendMessage(message)
-        # 使用会话密钥加密消息
-        var encrypted = gmssl.sm4_encrypt(message, this.sessionKey)
-        # 使用私钥签名
-        var signature = gmssl.sm2_sign(encrypted, this.localPrivateKey)
-        
-        return {
-            "data": encrypted,
-            "signature": signature
-        }
-    end
-    
-    function receiveMessage(package)
-        var encrypted = package["data"]
-        var signature = package["signature"]
-        
-        # 验证签名
-        if !gmssl.sm2_verify(encrypted, signature, this.remotePublicKey)
-            throw "消息签名验证失败"
-        end
-        
-        # 解密消息
-        var decrypted = gmssl.sm4_decrypt(encrypted, this.sessionKey)
-        return decrypted
-    end
-end
+# Base64 编码/解码
+var text = "Hello, World!"
+var encoded = gmssl.base64_encode(text)
+system.out.println("Base64: " + encoded)
+var decoded = gmssl.base64_decode(encoded)
+system.out.println("解码: " + decoded)
 
-# 使用示例
-var alice = new SecureChannel{}
-var bob = new SecureChannel{}
+# Hex 编码/解码
+var data = gmssl.bytes_encode("test data")
+var hex = gmssl.hex_encode(data)
+system.out.println("Hex: " + hex)
+var original = gmssl.hex_decode(hex)
+system.out.println("原始: " + gmssl.bytes_decode(original))
 
-# 交换公钥
-alice.setRemotePublicKey(bob.getPublicKey())
-bob.setRemotePublicKey(alice.getPublicKey())
+# 字节与字符串转换
+var str = "测试文本"
+var bytes = gmssl.bytes_encode(str)
+var str_back = gmssl.bytes_decode(bytes)
+system.out.println("转换回: " + str_back)
 
-# Alice 发送消息给 Bob
-var message = "这是秘密消息"
-var package = alice.sendMessage(message)
+# 生成随机字节
+var random_bytes = gmssl.rand_bytes(16)
+system.out.println("随机字节: " + gmssl.hex_encode(random_bytes))
 
-# Bob 接收并解密消息
-var received = bob.receiveMessage(package)
-system.out.println("收到消息: " + received)
+# 使用种子生成字符
+var seed = 2333
+var random_chars = gmssl.rand_chars(16, seed)
+system.out.println("随机字符: " + random_chars)
 ```
 
 ## 2.14.7 picasso-ui - 现代化图形界面库
@@ -1477,7 +1606,169 @@ var reviewer = new CodeReviewer{}
 reviewer.reviewProject("./src")
 ```
 
-## 2.14.9 其他实用库
+## 2.14.9 argparse - 命令行参数解析
+
+`argparse` 是一个功能强大的命令行参数解析库，可以轻松处理复杂的命令行选项。
+
+### 基本使用
+
+```covscript
+import argparse
+
+# 创建解析器
+var parser = new argparse.ArgumentParser
+parser.program_name = "myapp"
+parser.description = "这是一个示例程序"
+
+# 添加位置参数
+parser.add_argument("input", true, "输入文件路径")
+parser.add_argument("output", false, "输出文件路径")
+
+# 添加选项
+parser.add_option("--verbose", true, false, "显示详细信息")
+parser.add_option("--format", false, true, "输出格式")
+
+# 设置别名
+parser.set_option_alias("--verbose", "-v")
+parser.set_option_alias("--format", "-f")
+
+# 设置默认值
+parser.set_defaults("output", "output.txt")
+parser.set_defaults("--format", "json")
+
+# 解析命令行参数
+try
+    var args = parser.parse_args(context.cmd_args)
+    
+    system.out.println("输入文件: " + args.input)
+    system.out.println("输出文件: " + args.output)
+    system.out.println("详细模式: " + to_string(args.verbose))
+    system.out.println("输出格式: " + args.format)
+    
+catch e
+    system.out.println("参数解析错误: " + e.what())
+    parser.print_help()
+    system.exit(1)
+end
+```
+
+### 完整示例：文件处理工具
+
+```covscript
+import argparse
+
+class FileProcessor
+    var verbose = false
+    var format = "text"
+    
+    function process(input_file, output_file)
+        if this.verbose
+            system.out.println("处理文件: " + input_file)
+        end
+        
+        # 读取输入文件
+        var in_file = iostream.fstream(input_file, iostream.openmode.in)
+        var content = new string
+        
+        loop
+            var line = in_file.getline()
+            if in_file.eof()
+                break
+            end
+            content += line + "\n"
+        end
+        in_file.close()
+        
+        if this.verbose
+            system.out.println("读取了 " + to_string(content.size) + " 字节")
+        end
+        
+        # 根据格式处理
+        var processed = null
+        switch this.format
+            case "upper"
+                processed = content.toupper()
+            end
+            case "lower"
+                processed = content.tolower()
+            end
+            default
+                processed = content
+            end
+        end
+        
+        # 写入输出文件
+        var out_file = iostream.fstream(output_file, iostream.openmode.out)
+        out_file.print(processed)
+        out_file.close()
+        
+        if this.verbose
+            system.out.println("输出到: " + output_file)
+        end
+    end
+end
+
+# 主程序
+function main(args)
+    var parser = new argparse.ArgumentParser
+    parser.program_name = "fileproc"
+    parser.description = "文件处理工具 - 转换文本格式"
+    
+    parser.add_argument("input", true, "输入文件路径")
+    parser.add_argument("output", false, "输出文件路径")
+    
+    parser.add_option("--verbose", true, false, "显示详细处理信息")
+    parser.set_option_alias("--verbose", "-v")
+    
+    parser.add_option("--format", false, false, "转换格式 (text/upper/lower)")
+    parser.set_option_alias("--format", "-f")
+    parser.set_defaults("--format", "text")
+    
+    parser.add_option("--output", false, false, "输出文件路径")
+    parser.set_option_alias("--output", "-o")
+    
+    try
+        var parsed = parser.parse_args(args)
+        
+        var processor = new FileProcessor
+        processor.verbose = parsed.verbose
+        processor.format = parsed.format
+        
+        var output = parsed.output
+        if output is null
+            output = parsed.input + ".out"
+        end
+        
+        processor.process(parsed.input, output)
+        
+        system.out.println("处理完成！")
+        
+    catch e
+        system.out.println("错误: " + e.what())
+        system.exit(1)
+    end
+end
+
+# 运行主程序
+main(context.cmd_args)
+```
+
+使用方式：
+```bash
+# 显示帮助
+cs fileproc.csc -h
+
+# 基本使用
+cs fileproc.csc input.txt
+
+# 指定输出和格式
+cs fileproc.csc input.txt -o output.txt -f upper
+
+# 详细模式
+cs fileproc.csc input.txt -v --format=lower
+```
+
+## 2.14.10 其他实用库
 
 ### regex - 正则表达式
 
