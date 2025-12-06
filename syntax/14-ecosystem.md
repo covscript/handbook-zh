@@ -903,7 +903,581 @@ cspkg publish
 cspkg publish --tag beta
 ```
 
-## 2.14.6 其他实用库
+## 2.14.6 covscript-gmssl - 国密算法支持
+
+`covscript-gmssl` 提供了国密（GM/T）加密算法的支持，包括 SM2、SM3、SM4 等算法。
+
+### 安装
+
+```bash
+cspkg install gmssl
+```
+
+### SM3 哈希算法
+
+SM3 是中国国家密码管理局发布的密码杂凑算法。
+
+```covscript
+import gmssl
+
+# 计算 SM3 哈希
+var text = "Hello, CovScript!"
+var hash = gmssl.sm3(text)
+system.out.println("SM3 哈希: " + hash)
+
+# 对文件计算 SM3 哈希
+var fileHash = gmssl.sm3_file("document.pdf")
+system.out.println("文件 SM3 哈希: " + fileHash)
+```
+
+### SM4 对称加密
+
+SM4 是一种分组密码算法，分组长度为 128 位，密钥长度为 128 位。
+
+```covscript
+import gmssl
+
+# 生成密钥
+var key = gmssl.sm4_generate_key()
+system.out.println("生成的密钥: " + key)
+
+# 加密数据
+var plaintext = "机密信息"
+var ciphertext = gmssl.sm4_encrypt(plaintext, key)
+system.out.println("加密后: " + ciphertext)
+
+# 解密数据
+var decrypted = gmssl.sm4_decrypt(ciphertext, key)
+system.out.println("解密后: " + decrypted)
+
+# 使用 CBC 模式加密
+var iv = gmssl.generate_iv()  # 生成初始化向量
+var encrypted_cbc = gmssl.sm4_encrypt_cbc(plaintext, key, iv)
+var decrypted_cbc = gmssl.sm4_decrypt_cbc(encrypted_cbc, key, iv)
+```
+
+### SM2 非对称加密
+
+SM2 是基于椭圆曲线的公钥密码算法，包括数字签名、密钥交换和公钥加密。
+
+```covscript
+import gmssl
+
+# 生成 SM2 密钥对
+var keypair = gmssl.sm2_generate_keypair()
+var publicKey = keypair["public"]
+var privateKey = keypair["private"]
+
+system.out.println("公钥: " + publicKey)
+system.out.println("私钥: " + privateKey)
+
+# 使用公钥加密
+var message = "重要消息"
+var encrypted = gmssl.sm2_encrypt(message, publicKey)
+system.out.println("加密结果: " + encrypted)
+
+# 使用私钥解密
+var decrypted = gmssl.sm2_decrypt(encrypted, privateKey)
+system.out.println("解密结果: " + decrypted)
+
+# 数字签名
+var data = "需要签名的数据"
+var signature = gmssl.sm2_sign(data, privateKey)
+system.out.println("签名: " + signature)
+
+# 验证签名
+var isValid = gmssl.sm2_verify(data, signature, publicKey)
+if isValid
+    system.out.println("签名验证成功")
+else
+    system.out.println("签名验证失败")
+end
+```
+
+### 实际应用：安全通信
+
+```covscript
+import gmssl
+
+class SecureChannel
+    var localPrivateKey = null
+    var localPublicKey = null
+    var remotePublicKey = null
+    var sessionKey = null
+    
+    function construct()
+        # 生成本地密钥对
+        var keypair = gmssl.sm2_generate_keypair()
+        this.localPrivateKey = keypair["private"]
+        this.localPublicKey = keypair["public"]
+    end
+    
+    function getPublicKey()
+        return this.localPublicKey
+    end
+    
+    function setRemotePublicKey(pubKey)
+        this.remotePublicKey = pubKey
+        # 生成会话密钥（使用 SM4）
+        this.sessionKey = gmssl.sm4_generate_key()
+    end
+    
+    function sendMessage(message)
+        # 使用会话密钥加密消息
+        var encrypted = gmssl.sm4_encrypt(message, this.sessionKey)
+        # 使用私钥签名
+        var signature = gmssl.sm2_sign(encrypted, this.localPrivateKey)
+        
+        return {
+            "data": encrypted,
+            "signature": signature
+        }
+    end
+    
+    function receiveMessage(package)
+        var encrypted = package["data"]
+        var signature = package["signature"]
+        
+        # 验证签名
+        if !gmssl.sm2_verify(encrypted, signature, this.remotePublicKey)
+            throw "消息签名验证失败"
+        end
+        
+        # 解密消息
+        var decrypted = gmssl.sm4_decrypt(encrypted, this.sessionKey)
+        return decrypted
+    end
+end
+
+# 使用示例
+var alice = new SecureChannel{}
+var bob = new SecureChannel{}
+
+# 交换公钥
+alice.setRemotePublicKey(bob.getPublicKey())
+bob.setRemotePublicKey(alice.getPublicKey())
+
+# Alice 发送消息给 Bob
+var message = "这是秘密消息"
+var package = alice.sendMessage(message)
+
+# Bob 接收并解密消息
+var received = bob.receiveMessage(package)
+system.out.println("收到消息: " + received)
+```
+
+## 2.14.7 picasso-ui - 现代化图形界面库
+
+Picasso UI 是 CovScript 的现代化图形用户界面框架，提供了声明式 UI 构建方式。
+
+### 安装
+
+```bash
+cspkg install picasso
+```
+
+### 基本窗口
+
+```covscript
+import picasso
+
+# 创建应用
+var app = picasso.Application()
+
+# 创建主窗口
+var window = picasso.Window()
+window.setTitle("Picasso UI 示例")
+window.setSize(800, 600)
+
+# 添加组件
+var layout = picasso.VBoxLayout()
+
+var label = picasso.Label("欢迎使用 Picasso UI")
+label.setFontSize(24)
+layout.add(label)
+
+var button = picasso.Button("点击我")
+button.onClick([]() {
+    system.out.println("按钮被点击！")
+})
+layout.add(button)
+
+window.setLayout(layout)
+window.show()
+
+# 运行应用
+app.exec()
+```
+
+### 声明式 UI 构建
+
+```covscript
+import picasso
+
+class TodoApp
+    var items = new list
+    var window = null
+    var listView = null
+    
+    function construct()
+        this.window = picasso.Window()
+        this.window.setTitle("待办事项")
+        this.window.setSize(400, 600)
+        
+        this.buildUI()
+    end
+    
+    function buildUI()
+        var layout = picasso.VBoxLayout()
+        
+        # 标题
+        var title = picasso.Label("我的待办事项")
+        title.setFontSize(20)
+        title.setAlignment(picasso.Align.Center)
+        layout.add(title)
+        
+        # 输入框和添加按钮
+        var inputLayout = picasso.HBoxLayout()
+        var input = picasso.TextEdit()
+        input.setPlaceholder("输入新任务...")
+        inputLayout.add(input)
+        
+        var addBtn = picasso.Button("添加")
+        addBtn.onClick([](app, inp) {
+            var text = inp.getText()
+            if text.size > 0
+                app.addItem(text)
+                inp.clear()
+            end
+        }, this, input)
+        inputLayout.add(addBtn)
+        
+        layout.add(inputLayout)
+        
+        # 任务列表
+        this.listView = picasso.ListView()
+        layout.add(this.listView)
+        
+        # 统计信息
+        var statsLabel = picasso.Label("总计: 0 项")
+        layout.add(statsLabel)
+        
+        this.window.setLayout(layout)
+    end
+    
+    function addItem(text)
+        this.items.push_back({
+            "text": text,
+            "completed": false
+        })
+        this.updateList()
+    end
+    
+    function updateList()
+        this.listView.clear()
+        
+        foreach item in this.items
+            var itemWidget = picasso.HBoxLayout()
+            
+            var checkbox = picasso.CheckBox(item["text"])
+            checkbox.setChecked(item["completed"])
+            itemWidget.add(checkbox)
+            
+            var deleteBtn = picasso.Button("删除")
+            itemWidget.add(deleteBtn)
+            
+            this.listView.addItem(itemWidget)
+        end
+    end
+    
+    function show()
+        this.window.show()
+    end
+end
+
+# 运行应用
+var app = picasso.Application()
+var todoApp = new TodoApp{}
+todoApp.show()
+app.exec()
+```
+
+### 响应式布局
+
+```covscript
+import picasso
+
+# 创建响应式布局
+var window = picasso.Window()
+window.setTitle("响应式布局")
+
+var layout = picasso.GridLayout(3, 3)  # 3x3 网格
+
+# 添加按钮到网格
+for i = 0, i < 9, ++i
+    var btn = picasso.Button("按钮 " + to_string(i + 1))
+    btn.onClick([](index) {
+        system.out.println("点击了按钮 " + to_string(index))
+    }, i + 1)
+    layout.add(btn, i / 3, i % 3)
+end
+
+window.setLayout(layout)
+window.show()
+
+var app = picasso.Application()
+app.exec()
+```
+
+### 自定义样式
+
+```covscript
+import picasso
+
+# 设置应用主题
+picasso.setTheme("dark")  # 或 "light"
+
+var window = picasso.Window()
+window.setTitle("自定义样式")
+
+var button = picasso.Button("样式化按钮")
+
+# 设置自定义样式
+button.setStyle({
+    "background-color": "#4CAF50",
+    "color": "white",
+    "border-radius": "5px",
+    "padding": "10px 20px",
+    "font-size": "16px"
+})
+
+# 悬停效果
+button.onHover([]() {
+    button.setStyle({"background-color": "#45a049"})
+}, []() {
+    button.setStyle({"background-color": "#4CAF50"})
+})
+
+window.add(button)
+window.show()
+
+var app = picasso.Application()
+app.exec()
+```
+
+## 2.14.8 covanalysis - 静态代码分析工具
+
+covanalysis 是 CovScript 的静态代码分析工具，用于检查代码质量、发现潜在问题和代码异味。
+
+### 安装
+
+```bash
+cspkg install covanalysis
+```
+
+### 基本使用
+
+```bash
+# 分析单个文件
+covanalysis analyze mycode.csc
+
+# 分析整个项目
+covanalysis analyze --recursive ./src
+
+# 生成详细报告
+covanalysis analyze mycode.csc --report=detailed
+
+# 输出 JSON 格式
+covanalysis analyze mycode.csc --format=json --output=report.json
+```
+
+### 支持的检查项
+
+covanalysis 支持多种代码检查：
+
+1. **语法检查**：检测语法错误和不规范的写法
+2. **未使用变量检测**：找出定义但从未使用的变量
+3. **类型安全**：检查潜在的类型错误
+4. **代码复杂度**：计算函数的圈复杂度
+5. **最佳实践**：检查是否遵循 CovScript 最佳实践
+6. **性能提示**：识别可能的性能问题
+
+### 在代码中使用
+
+```covscript
+import covanalysis
+
+# 程序化分析代码
+var analyzer = covanalysis.Analyzer()
+
+# 设置检查规则
+analyzer.enableRule("unused-variables")
+analyzer.enableRule("complexity")
+analyzer.setComplexityThreshold(10)
+
+# 分析文件
+var results = analyzer.analyzeFile("mycode.csc")
+
+# 处理结果
+foreach issue in results
+    system.out.println("问题: " + issue["message"])
+    system.out.println("位置: 第 " + to_string(issue["line"]) + " 行")
+    system.out.println("严重程度: " + issue["severity"])
+    system.out.println("")
+end
+
+# 生成报告
+analyzer.generateReport("report.html", "html")
+```
+
+### 自定义检查规则
+
+```covscript
+import covanalysis
+
+class CustomRule
+    function check(node)
+        # 检查逻辑
+        if node.type == "function" && node.name.starts_with("_")
+            return {
+                "severity": "warning",
+                "message": "私有函数应使用双下划线前缀",
+                "line": node.line
+            }
+        end
+        return null
+    end
+end
+
+# 注册自定义规则
+var analyzer = covanalysis.Analyzer()
+analyzer.addCustomRule(new CustomRule{})
+analyzer.analyzeFile("mycode.csc")
+```
+
+### 配置文件
+
+在项目根目录创建 `.covanalysis.json` 配置文件：
+
+```json
+{
+    "rules": {
+        "unused-variables": "error",
+        "complexity": "warning",
+        "naming-convention": "warning",
+        "line-length": "warning"
+    },
+    "thresholds": {
+        "complexity": 15,
+        "line-length": 120
+    },
+    "ignore": [
+        "node_modules/**",
+        "build/**",
+        "*.test.csc"
+    ]
+}
+```
+
+### 集成到构建流程
+
+```bash
+# 在 CI/CD 中使用
+#!/bin/bash
+
+# 运行代码分析
+covanalysis analyze ./src --format=json --output=report.json
+
+# 检查是否有错误
+if grep -q '"severity": "error"' report.json; then
+    echo "代码分析发现错误，构建失败"
+    exit 1
+fi
+
+echo "代码分析通过"
+```
+
+### 实际应用：代码审查助手
+
+```covscript
+import covanalysis
+
+class CodeReviewer
+    var analyzer = null
+    var rules = new list
+    
+    function construct()
+        this.analyzer = covanalysis.Analyzer()
+        this.setupRules()
+    end
+    
+    function setupRules()
+        # 启用所有推荐规则
+        this.analyzer.enableRule("all-recommended")
+        
+        # 设置严格程度
+        this.analyzer.setStrictness("high")
+    end
+    
+    function reviewFile(filename)
+        system.out.println("正在审查: " + filename)
+        
+        var results = this.analyzer.analyzeFile(filename)
+        
+        var errors = 0
+        var warnings = 0
+        
+        foreach issue in results
+            if issue["severity"] == "error"
+                errors += 1
+            else if issue["severity"] == "warning"
+                warnings += 1
+            end
+            
+            this.printIssue(issue)
+        end
+        
+        system.out.println("\n审查完成:")
+        system.out.println("  错误: " + to_string(errors))
+        system.out.println("  警告: " + to_string(warnings))
+        
+        return errors == 0
+    end
+    
+    function printIssue(issue)
+        var prefix = "[" + issue["severity"] + "] "
+        system.out.println(prefix + issue["message"])
+        system.out.println("  位置: 第 " + to_string(issue["line"]) + " 行")
+        
+        if issue.exist("suggestion")
+            system.out.println("  建议: " + issue["suggestion"])
+        end
+    end
+    
+    function reviewProject(directory)
+        var files = system.path.scan(directory)
+        var totalErrors = 0
+        var totalWarnings = 0
+        
+        foreach file in files
+            if file.ends_with(".csc") || file.ends_with(".ecs")
+                var fullPath = directory + "/" + file
+                if this.reviewFile(fullPath)
+                    system.out.println("✓ " + file + " 通过审查\n")
+                else
+                    system.out.println("✗ " + file + " 有错误\n")
+                end
+            end
+        end
+    end
+end
+
+# 使用代码审查助手
+var reviewer = new CodeReviewer{}
+reviewer.reviewProject("./src")
+```
+
+## 2.14.9 其他实用库
 
 ### regex - 正则表达式
 
