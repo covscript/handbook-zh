@@ -288,7 +288,7 @@ scores.insert("Bob", 87)
 scores.insert("Charlie", 92)
 
 foreach item in scores
-    system.out.println(item.first + ": " + to_string(item.second))
+    system.out.println(item.key + ": " + to_string(item.value))
 end
 
 # 遍历字符串

@@ -393,7 +393,7 @@ package config
     function save(filename)
         var file = iostream.fstream(filename, iostream.openmode.out)
         foreach item in settings
-            file.println(item.first + "=" + item.second)
+            file.println(item.key + "=" + item.value)
         end
         file.close()
     end
