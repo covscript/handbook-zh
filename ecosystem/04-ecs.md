@@ -522,18 +522,209 @@ var result = temp2.value
 4. 使用 `ecs -c` 检查语法
 5. 运行测试确保功能正确
 
+## 常见问题（FAQ）
+
+### Q: ECS 和 CovScript 3 有什么区别？
+
+**A**: 
+- **ECS (CovScript 4)** 是编译器，提供更多语法特性（类型注解、引用参数、箭头操作符等）
+- **CovScript 3 (CSC)** 是解释器，直接执行代码
+- ECS 代码编译后由 CSC 运行，因此 ECS 是 CSC 的超集
+
+### Q: 我应该使用 ECS 还是 CovScript 3？
+
+**A**: 
+- **新项目**：推荐使用 ECS，享受更好的开发体验
+- **现有项目**：CovScript 3 稳定可靠，除非需要 ECS 的特性
+- **学习阶段**：两者都可以，但 ECS 的类型注解有助于理解代码
+
+### Q: ECS 代码的性能如何？
+
+**A**: ECS 编译为 CovScript 3 代码，运行时性能与手写的 CSC 代码相同。编译过程有缓存机制，只在源文件改变时重新编译。
+
+### Q: 类型注解是否强制？
+
+**A**: 不强制。类型注解仅用于文档和开发工具提示，不进行运行时类型检查。你可以混合使用有类型注解和无类型注解的代码。
+
+### Q: ECS 的编译缓存在哪里？
+
+**A**: 编译缓存默认存储在 `.ecs_cache/` 目录下。可以使用 `-f` 选项禁用缓存。
+
+### Q: 如何在 ECS 中使用 CovScript 3 的包？
+
+**A**: 完全兼容。使用 `import` 或 `using` 导入 `.csp` 或 `.csc` 文件即可。
+
+### Q: ECS 支持调试吗？
+
+**A**: 支持。使用 `ecs -d program.ecs` 启动调试器，或生成调试信息后使用 `cs_dbg`。
+
+### Q: 编译出错怎么办？
+
+**A**: 
+1. 检查语法错误（使用 `ecs -c program.ecs`）
+2. 查看编译器错误信息
+3. 确保 CovScript 3 已正确安装
+4. 尝试清除缓存（删除 `.ecs_cache/` 目录）
+
+## 实战示例
+
+### 示例 1：类型安全的数学库
+
+```covscript
+# math_utils.ecs
+package math_utils
+
+    function add(a: number, b: number): number
+        return a + b
+    end
+    
+    function multiply(a: number, b: number): number
+        return a * b
+    end
+    
+    function factorial(n: number): number
+        if n <= 1
+            return 1
+        end
+        return n * factorial(n - 1)
+    end
+    
+    class Vector2D
+        var x: number = 0
+        var y: number = 0
+        
+        function construct(x: number, y: number)
+            this.x = x
+            this.y = y
+        end
+        
+        function length(): number
+            return math.sqrt(this.x * this.x + this.y * this.y)
+        end
+        
+        function add(other: Vector2D): Vector2D
+            return new Vector2D{this.x + other.x, this.y + other.y}
+        end
+    end
+
+end
+```
+
+### 示例 2：引用参数实现快速排序
+
+```covscript
+# quicksort.ecs
+function partition(=arr, low: number, high: number): number
+    var pivot = arr[high]
+    var i = low - 1
+    
+    for j = low, j < high, ++j
+        if arr[j] < pivot
+            ++i
+            var temp = arr[i]
+            arr[i] = arr[j]
+            arr[j] = temp
+        end
+    end
+    
+    var temp = arr[i + 1]
+    arr[i + 1] = arr[high]
+    arr[high] = temp
+    
+    return i + 1
+end
+
+function quicksort(=arr, low: number, high: number)
+    if low < high
+        var pi = partition(arr, low, high)
+        quicksort(arr, low, pi - 1)
+        quicksort(arr, pi + 1, high)
+    end
+end
+
+# 测试
+var data = {64, 34, 25, 12, 22, 11, 90}
+system.out.println("原始数组: " + to_string(data))
+
+quicksort(data, 0, data.size - 1)
+system.out.println("排序后: " + to_string(data))
+```
+
+### 示例 3：使用箭头操作符的链式调用
+
+```covscript
+# chain_example.ecs
+class StringBuilder
+    var buffer: string = ""
+    
+    function append(text: string): StringBuilder
+        this.buffer += text
+        return this
+    end
+    
+    function appendLine(text: string): StringBuilder
+        this.buffer += text + "\n"
+        return this
+    end
+    
+    function toString(): string
+        return this.buffer
+    end
+end
+
+# 使用链式调用
+var builder = new StringBuilder{}
+var result = builder
+    ->append("Hello, ")
+    ->append("World!")
+    ->appendLine("")
+    ->append("This is ECS.")
+    ->toString()
+
+system.out.println(result)
+```
+
 ## 总结
 
 ECS（Extended CovScript）是 CovScript 的演进版本，提供了：
 
-- **更强的类型支持**：可选的类型注解
-- **更灵活的参数传递**：引用参数
-- **更清晰的语法**：箭头操作符、扩展导入
-- **更好的工具链**：编译器、调试器、缓存
+- **更强的类型支持**：可选的类型注解，增强代码可读性
+- **更灵活的参数传递**：引用参数，简化函数设计
+- **更清晰的语法**：箭头操作符、扩展导入，代码更优雅
+- **更好的工具链**：编译器、调试器、缓存机制
+- **完全兼容性**：编译为 CovScript 3 运行，保证向后兼容
 
 ECS 编译为 CovScript 3 运行，保证了向后兼容性的同时，为开发者提供了更现代化的编程体验。
 
-**学习资源**：
-- ECS GitHub: https://github.com/covscript/ecs
-- CovScript 官网: http://covscript.org.cn
-- 官方文档: https://manual.covscript.org.cn/
+## 参考资料
+
+### 官方资源
+- **ECS GitHub 仓库**：https://github.com/covscript/ecs
+- **ECS 源码实现**：https://github.com/covscript/ecs/tree/master/src
+- **CovScript 官网**：http://covscript.org.cn
+- **官方文档**：https://manual.covscript.org.cn/
+
+### 编译器实现
+
+ECS 编译器使用 CovScript 自身编写，核心模块包括：
+
+- **词法分析器**：将源码分词
+- **语法分析器**：构建抽象语法树（AST）
+- **类型注解处理**：解析和移除类型注解
+- **代码生成器**：生成 CovScript 3 代码
+
+**编译器核心代码**：[compiler.csc](https://github.com/covscript/ecs/blob/master/src/compiler.csc)
+
+### 学习路径
+
+1. **基础**：先学习 CovScript 3 的基本语法
+2. **进阶**：了解 ECS 的扩展特性
+3. **实践**：用 ECS 编写实际项目
+4. **深入**：阅读 ECS 编译器源码，理解实现原理
+
+## 下一章
+
+了解 ECS 后，可以继续学习：
+
+- [3.5 包管理器 (cspkg)](./05-cspkg.md) - 管理项目依赖
+- [3.10 库开发最佳实践](./11-best-practices.md) - 使用 ECS 开发高质量的库
