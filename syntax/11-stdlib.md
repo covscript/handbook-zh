@@ -848,3 +848,92 @@ function readConfig(filename)
     end
 end
 ```
+
+## 标准库参考资料
+
+### 底层实现
+
+CovScript 标准库的底层实现在 C++ 中定义，主要文件包括：
+
+- **类型扩展实现**：[type_ext.cpp](https://github.com/covscript/covscript/blob/master/sources/instance/type_ext.cpp)
+  - 定义了所有内置类型的方法和属性
+  - 包括字符串、数组、列表、哈希表等操作
+
+- **运行时扩展**：[runtime.cpp](https://github.com/covscript/covscript/blob/master/sources/instance/runtime.cpp)
+  - runtime、system、iostream 等模块的实现
+  - 系统调用、文件操作、时间管理等功能
+
+- **数学库**：包含在标准库扩展中
+  - 数学函数、常量、随机数生成器
+
+### 脚本层与底层交互
+
+CovScript 使用 **CNI (Covariant Native Interface)** 桥接脚本层和 C++ 层：
+
+1. **类型映射**：CovScript 类型映射到 C++ 的 `cs::var` 类型
+2. **函数注册**：C++ 函数通过 `CNI_ROOT_NAMESPACE` 注册到脚本环境
+3. **扩展模块**：使用 `cs_extension` 机制注册原生模块
+
+**示例（C++ 扩展接口）**：
+```cpp
+// 注册一个原生函数到 CovScript
+CNI(my_function) 
+{
+    // 参数从 cs::var 提取
+    auto arg = args[0].const_val<std::string>();
+    // 返回值包装为 cs::var
+    return cs::var::make<std::string>(result);
+}
+```
+
+### 官方测试用例
+
+标准库的使用示例可以在以下位置找到：
+
+- **主仓库测试**：https://github.com/covscript/covscript/tree/master/tests
+  - 包含各种标准库功能的测试代码
+  - 最新 API 的实际使用案例
+
+- **官方示例集**：https://github.com/covscript/covscript-example
+  - 实战场景的完整示例
+  - 标准库与扩展库的组合使用
+
+### 扩展标准库
+
+如果需要扩展标准库功能，可以：
+
+1. **编写 CovScript 包**：使用纯 CovScript 封装工具函数
+2. **编写 C++ 扩展**：使用 CNI 接口创建原生模块
+3. **参考文档**：
+   - [扩展开发指南](https://github.com/covscript/covscript/blob/master/docs/zh-cn/190101_extensions.md)
+   - [CNI 接口文档](https://github.com/covscript/covscript/blob/master/docs/zh-cn/190201_cni.md)
+
+### 常见问题（FAQ）
+
+**Q: 为什么某些字符串方法返回空或报错？**
+
+A: 确保正确处理字符串索引和长度。CovScript 的字符串索引从 0 开始，支持负数索引（从末尾开始）。
+
+**Q: 如何处理大文件读取？**
+
+A: 使用逐行读取（`getline()`）或分块读取，避免一次性加载整个文件到内存。
+
+**Q: 数学函数的精度如何？**
+
+A: CovScript 使用 C++ 的 `double` 类型，提供双精度浮点运算（约 15-17 位有效数字）。
+
+**Q: 如何实现跨平台路径处理？**
+
+A: 使用 `system.path` 模块的函数，避免硬编码路径分隔符。建议使用相对路径或通过环境变量获取路径。
+
+**Q: 为什么我的程序内存占用很高？**
+
+A: CovScript 使用引用计数进行内存管理。注意避免循环引用，及时释放大型对象（如关闭文件、清空大列表）。
+
+## 下一章
+
+标准库是 CovScript 开发的基础。掌握标准库后，可以继续学习：
+
+- [2.12 高级特性](./12-advanced.md) - 元编程、反射等高级功能
+- [2.13 异步编程与协程](./13-asyncio.md) - 使用 fiber 实现并发
+- [叁 · 生态系统与扩展库](../ecosystem/README.md) - 网络、数据库、GUI 等扩展功能

@@ -67,7 +67,7 @@ system.out.println("圆的面积：" + to_string(area))
 
 ## 1.3.4 运行程序的方式
 
-### 直接运行
+### 直接运行 CSC 文件
 
 对于 `.csc` 文件，可以直接运行：
 
@@ -75,7 +75,14 @@ system.out.println("圆的面积：" + to_string(area))
 cs program.csc
 ```
 
-### 运行 ECS 文件（仅 CovScript 4）
+**传递命令行参数**：
+```bash
+cs program.csc arg1 arg2 arg3
+```
+
+在程序中可以通过 `context.cmd_args` 访问这些参数。
+
+### 运行 ECS 文件（CovScript 4）
 
 **注意：** 以下功能需要安装 ECS 引导程序（`cspkg install ecs_bootstrap`）。
 
@@ -86,7 +93,7 @@ cs program.csc
 ecs program.ecs
 ```
 
-也可以显式编译：
+**显式编译**：
 
 ```bash
 # 编译 ECS 文件为 CSC 格式
@@ -96,11 +103,18 @@ ecs program.ecs -o program.csc
 cs program.csc
 ```
 
-**运行原理：** ECS 编译器会将 `.ecs` 文件编译为标准的 `.csc` 字节码，然后由 CSC 解释器执行。编译后的文件会被缓存，只有当源文件修改时才会重新编译
+**编译为包文件**：
 
-### 交互式运行
+```bash
+# 编译为 .csp 包文件（适用于 package 声明的文件）
+ecs my_package.ecs -o my_package.csp
+```
 
-CovScript 还支持交互式 REPL 模式：
+**运行原理：** ECS 编译器会将 `.ecs` 文件编译为标准的 `.csc` 字节码，然后由 CSC 解释器执行。编译后的文件会被缓存到 `.ecs_cache` 目录，只有当源文件修改时才会重新编译。
+
+### 交互式运行（REPL）
+
+CovScript 支持交互式 REPL（Read-Eval-Print Loop）模式，适合快速测试代码片段：
 
 ```bash
 cs
@@ -113,15 +127,117 @@ cs
 > var y = 20
 > system.out.println(x + y)
 30
+> var list = new list
+> list.push_back("Hello")
+> list.push_back("World")
+> foreach item in list
+>     system.out.println(item)
+> end
+Hello
+World
 > quit()
 ```
 
+**REPL 特性**：
+- 支持多行输入（如函数定义、循环等）
+- 保持变量和函数的状态
+- 可以导入模块和包
+- 使用 `quit()` 或 `Ctrl+C` 退出
+
 ## 1.3.5 调试程序
 
-CovScript 提供了调试器 `cs_dbg`：
+CovScript 提供了专门的调试器 `cs_dbg`，用于调试程序：
 
 ```bash
 cs_dbg program.csc
 ```
 
-调试器支持设置断点、单步执行、查看变量等功能。
+### 调试器基本命令
+
+```
+help          - 显示帮助信息
+run           - 运行程序
+step          - 单步执行
+next          - 执行到下一行
+continue      - 继续执行直到下一个断点
+break <line>  - 在指定行设置断点
+print <var>   - 打印变量的值
+list          - 显示当前代码
+quit          - 退出调试器
+```
+
+### 调试示例
+
+```bash
+$ cs_dbg test.csc
+(cs_dbg) break 5        # 在第5行设置断点
+(cs_dbg) run            # 开始运行
+(cs_dbg) print x        # 打印变量 x 的值
+(cs_dbg) step           # 单步执行
+(cs_dbg) continue       # 继续执行
+```
+
+**调试技巧**：
+- 在关键代码处设置断点
+- 使用 `print` 命令查看变量状态
+- 利用单步执行追踪程序流程
+- 结合 `system.out.println()` 输出调试信息
+
+## 1.3.6 常见问题
+
+### Q: 中文字符显示乱码怎么办？
+
+**A**: 在文件开头添加字符集声明：
+
+```covscript
+@charset: utf8
+```
+
+或在 Windows 上使用 GBK：
+
+```covscript
+@charset: gbk
+```
+
+### Q: 如何指定文件编码？
+
+**A**: CovScript 默认使用 UTF-8 编码。确保你的文本编辑器保存文件时使用 UTF-8 编码。
+
+### Q: 程序运行报错找不到模块怎么办？
+
+**A**: 确保已经安装了所需的扩展包：
+
+```bash
+cspkg install <package_name> --yes
+```
+
+### Q: ECS 和 CSC 有什么区别？
+
+**A**: 
+- **ECS (CovScript 4)**：提供更多语言特性，需要编译为 CSC
+- **CSC (CovScript 3)**：直接解释执行，性能稳定
+- ECS 是 CSC 的超集，ECS 代码编译后可在 CSC 上运行
+
+### Q: 如何查看 CovScript 的版本信息？
+
+**A**: 
+```bash
+cs -v        # CovScript 解释器版本
+ecs -v       # ECS 编译器版本（如果已安装）
+cspkg -v     # 包管理器版本
+```
+
+## 1.3.7 更多示例
+
+查看更多示例代码：
+
+- **官方示例集**：https://github.com/covscript/covscript-example
+- **测试用例**：https://github.com/covscript/covscript/tree/master/tests
+- **本手册的实战案例**：[2.14 实战案例](../syntax/14-examples.md)
+
+## 下一步
+
+恭喜你完成了入门章节！现在可以继续学习：
+
+- [**贰 · 语法基础**](../syntax/README.md) - 深入学习 CovScript 的语法和特性
+- [**叁 · 生态系统与扩展库**](../ecosystem/README.md) - 了解网络、数据库、GUI 等扩展功能
