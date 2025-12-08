@@ -22,5 +22,6 @@ CovScript 是一门灵活而强大的动态语言，语法简洁明了，容易�
  + [2.11 标准库](./11-stdlib.md)
  + [2.12 高级特性](./12-advanced.md)
  + [2.13 异步编程与协程](./13-asyncio.md)
- + [2.14 高级库与生态](./14-ecosystem.md)
- + [2.15 实战案例](./15-examples.md)
+ + [2.14 实战案例](./14-examples.md)
+
+**扩展库与生态系统**：请参阅 [叁 · 生态系统与扩展库](../ecosystem/README.md) 了解 CovScript 的扩展库，包括网络编程、数据库、GUI、数据分析等功能。
