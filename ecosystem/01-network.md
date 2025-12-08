@@ -100,18 +100,17 @@ system.out.println("TCP 服务器启动在端口 8080")
 
 loop
     # 接受客户端连接
-    var client_sock = new tcp.socket
-    runtime.await(client_sock.accept, acpt)
+    runtime.await(sock.accept, acpt)
     
     # 接收数据
-    var data = client_sock.receive(1024)
+    var data = sock.receive(1024)
     system.out.println("收到: " + data)
     
     # 发送响应
-    client_sock.send("服务器收到: " + data)
+    sock.send("服务器收到: " + data)
     
-    # 关闭客户端连接（不是服务器监听socket）
-    client_sock.close()
+    # 注意：在实际应用中，应该为每个连接创建新的处理线程或协程
+    # 这里简化为顺序处理，每次处理完一个连接后再接受下一个
 end
 ```
 
