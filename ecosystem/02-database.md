@@ -28,17 +28,17 @@ db.just_exec(create_sql)
 var stmt = db.prepare("INSERT INTO users (name, email, age) VALUES (?, ?, ?)")
 stmt.bind(1, "Alice")
 stmt.bind(2, "alice@example.com")
-stmt.bind(3, "25")
+stmt.bind(3, 25)
 stmt.just_exec()
 
-# 批量插入
+# 批量插入 - 重用预处理语句以提高性能
 var users = {
-    {"Bob", "bob@example.com", "30"},
-    {"Charlie", "charlie@example.com", "35"}
+    {"Bob", "bob@example.com", 30},
+    {"Charlie", "charlie@example.com", 35}
 }
 
+var insert_stmt = db.prepare("INSERT INTO users (name, email, age) VALUES (?, ?, ?)")
 foreach user in users
-    var insert_stmt = db.prepare("INSERT INTO users (name, email, age) VALUES (?, ?, ?)")
     insert_stmt.bind(1, user[0])
     insert_stmt.bind(2, user[1])
     insert_stmt.bind(3, user[2])
@@ -61,14 +61,14 @@ end
 
 # 更新数据
 var update_stmt = db.prepare("UPDATE users SET age = ? WHERE name = ?")
-update_stmt.bind(1, "26")
+update_stmt.bind(1, 26)
 update_stmt.bind(2, "Alice")
 update_stmt.just_exec()
 system.out.println("数据更新成功")
 
 # 删除数据
 var delete_stmt = db.prepare("DELETE FROM users WHERE age > ?")
-delete_stmt.bind(1, "30")
+delete_stmt.bind(1, 30)
 delete_stmt.just_exec()
 system.out.println("数据删除成功")
 ```
@@ -90,22 +90,22 @@ try
     # 执行多个操作
     var stmt1 = db.prepare("INSERT INTO accounts (name, balance) VALUES (?, ?)")
     stmt1.bind(1, "账户A")
-    stmt1.bind(2, "1000")
+    stmt1.bind(2, 1000)
     stmt1.just_exec()
     
     var stmt2 = db.prepare("INSERT INTO accounts (name, balance) VALUES (?, ?)")
     stmt2.bind(1, "账户B")
-    stmt2.bind(2, "500")
+    stmt2.bind(2, 500)
     stmt2.just_exec()
     
     # 转账操作
     var stmt3 = db.prepare("UPDATE accounts SET balance = balance - ? WHERE name = ?")
-    stmt3.bind(1, "200")
+    stmt3.bind(1, 200)
     stmt3.bind(2, "账户A")
     stmt3.just_exec()
     
     var stmt4 = db.prepare("UPDATE accounts SET balance = balance + ? WHERE name = ?")
-    stmt4.bind(1, "200")
+    stmt4.bind(1, 200)
     stmt4.bind(2, "账户B")
     stmt4.just_exec()
     

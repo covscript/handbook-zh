@@ -107,7 +107,6 @@ function main(args)
     parser.description = "文件处理工具 - 转换文本格式"
     
     parser.add_argument("input", true, "输入文件路径")
-    parser.add_argument("output", false, "输出文件路径")
     
     parser.add_option("--verbose", true, false, "显示详细处理信息")
     parser.set_option_alias("--verbose", "-v")
@@ -118,6 +117,7 @@ function main(args)
     
     parser.add_option("--output", false, false, "输出文件路径")
     parser.set_option_alias("--output", "-o")
+    parser.set_defaults("--output", null)
     
     try
         var parsed = parser.parse_args(args)

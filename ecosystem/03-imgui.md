@@ -204,17 +204,22 @@ function save_file(path, text)
 end
 
 function load_file(path)
-    var file = iostream.fstream(path, iostream.openmode.in)
-    var text = new string
-    loop
-        var line = file.getline()
-        if file.eof()
-            break
+    try
+        var file = iostream.fstream(path, iostream.openmode.in)
+        var text = new string
+        loop
+            var line = file.getline()
+            if file.eof()
+                break
+            end
+            text += line + "\n"
         end
-        text += line + "\n"
+        file.close()
+        return text
+    catch e
+        system.out.println("无法读取文件: " + path)
+        return ""
     end
-    file.close()
-    return text
 end
 
 while !app.is_closed()

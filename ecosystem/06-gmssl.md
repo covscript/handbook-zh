@@ -27,11 +27,14 @@ var hmac = gmssl.sm3_hmac(gmssl.bytes_encode(key), gmssl.bytes_encode(text))
 system.out.println("SM3 HMAC: " + gmssl.hex_encode(hmac))
 
 # SM3 PBKDF2 - 基于密码的密钥派生
+# 安全提示：实际应用中应为每个密码生成唯一的随机 salt
+# 并使用较高的迭代次数（如 100000 及以上），以防止暴力破解
 var password = "my_password"
-var salt = "covscript"
-var iterations = 5
-var key_bytes = gmssl.sm3_pbkdf2(password, salt, iterations, gmssl.sm4_key_size)
+var salt = gmssl.rand_bytes(16)  # 生成 16 字节的随机 salt
+var iterations = 100000  # 推荐使用 100,000 次及以上迭代
+var key_bytes = gmssl.sm3_pbkdf2(password, gmssl.bytes_decode(salt), iterations, gmssl.sm4_key_size)
 system.out.println("派生密钥: " + gmssl.hex_encode(key_bytes))
+system.out.println("Salt (需保存): " + gmssl.hex_encode(salt))
 ```
 
 ### SM4 对称加密

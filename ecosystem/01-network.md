@@ -68,12 +68,22 @@ loop
     
     if state.get_error() != null
         system.out.println("错误: " + state.get_error())
-        system.exit(-1)
+        break
     end
     
-    # 输出接收到的数据
-    system.out.print(state.get_result())
+    # 获取并输出接收到的数据
+    var msg = state.get_result()
+    system.out.print(msg)
+    
+    # 如果收到 "quit\r\n"，则退出循环
+    if msg == "quit\r\n"
+        system.out.println("收到退出指令，关闭连接")
+        break
+    end
 end
+
+# 关闭连接
+sock.close()
 ```
 
 ### TCP 服务器（同步模式）
@@ -90,17 +100,18 @@ system.out.println("TCP 服务器启动在端口 8080")
 
 loop
     # 接受客户端连接
-    runtime.await(sock.accept, acpt)
+    var client_sock = new tcp.socket
+    runtime.await(client_sock.accept, acpt)
     
     # 接收数据
-    var data = sock.receive(1024)
+    var data = client_sock.receive(1024)
     system.out.println("收到: " + data)
     
     # 发送响应
-    sock.send("服务器收到: " + data)
+    client_sock.send("服务器收到: " + data)
     
-    # 关闭连接
-    sock.close()
+    # 关闭客户端连接（不是服务器监听socket）
+    client_sock.close()
 end
 ```
 
