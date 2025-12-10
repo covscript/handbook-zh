@@ -10,7 +10,7 @@ CovScript 支持整数和浮点数。
 
 ```covscript
 # 整数
-var integer = 42
+var num_int = 42
 var negative = -10
 
 # 浮点数

@@ -41,7 +41,7 @@ var old = count++        # old = 5, count = 6
 var val = count--        # val = 6, count = 5
 
 # 前置自增
-var new = ++count        # new = 6, count = 6
+var num_new = ++count    # num_new = 6, count = 6
 
 # 前置自减
 var current = --count    # current = 5, count = 5
