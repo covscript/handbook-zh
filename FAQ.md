@@ -55,7 +55,7 @@ export CS_DEV_PATH="$CS_DARWIN_PATH"
 sudo apt-get install -f
 
 # 或手动安装依赖
-sudo apt-get install libc6 libstdc++6
+sudo apt-get install libc libstdc++
 ```
 
 ### Q: 如何更新 CovScript 到最新版本？
@@ -79,16 +79,6 @@ x = "hello"      # 现在 x 是字符串
 x = {1, 2, 3}    # 现在 x 是数组
 ```
 
-### Q: 为什么字符串拼接时数字需要转换？
-
-**A**: CovScript 不会自动将数字转为字符串，需要使用 `to_string()`:
-
-```covscript
-var age = 25
-system.out.println("Age: " + to_string(age))  # 正确
-# system.out.println("Age: " + age)           # 错误
-```
-
 ### Q: 如何定义多行字符串？
 
 **A**: 使用转义字符 `\n`：
@@ -102,41 +92,112 @@ CovScript 不支持三引号多行字符串。
 
 ### Q: 数组和列表有什么区别？
 
-**A**: 
-- **数组 (Array)**：`{1, 2, 3}`，固定大小（虽然可以通过索引自动扩容）
-- **列表 (List)**：`new list`，动态大小，提供 `push_back`、`pop_back` 等方法
+**A**: 两者都是动态大小的容器，均提供 `push_back`、`pop_back` 等方法，但内部实现和性能特性不同：
 
-推荐使用列表进行动态操作。
+- **数组 (Array)**：`{1, 2, 3}`
+  - 底层实现：双端队列
+  - 索引方式：支持 `arr[index]` 下标随机访问，O(1) 复杂度
+  - 性能特点：头尾插入/删除为 O(1)，中间插入/删除为 O(N)
+  - 适用场景：需要随机访问、头尾操作频繁
+
+- **列表 (List)**：`new list`
+  - 底层实现：双向链表
+  - 索引方式：仅支持迭代器顺序访问，不支持下标
+  - 性能特点：已知位置插入/删除为 O(1)，但定位到指定位置需 O(N) 遍历
+  - 适用场景：频繁在已知位置插入/删除、不需要随机访问
+
+根据实际业务需求选择合适的数据结构。
 
 ### Q: 如何实现类似 Python 的列表推导式？
 
-**A**: CovScript 没有内置列表推导式，但可以用循环实现：
+**A**: CovScript 没有内置列表推导式语法，但可通过循环实现相同功能：
 
 ```covscript
-# 生成 1 到 10 的平方
+# 方法 1：使用传统 for 循环
 var squares = new list
 for i = 1, i <= 10, ++i
     squares.push_back(i * i)
 end
 ```
 
-### Q: 函数参数是值传递还是引用传递？
-
-**A**: 
-- 基本类型（数字、布尔、字符）：**值传递**
-- 对象类型（数组、列表、类实例）：**引用传递**
-
-```covscript
-function modifyList(lst)
-    lst.push_back(100)  # 会修改原列表
-end
-
-function modifyNumber(num)
-    num = 100  # 不会修改原变量
+```
+# 方法 2：使用 foreach 配合 range（更简洁）
+var squares = new list
+foreach i in range(1, 11)
+    squares.push_back(i * i)
 end
 ```
 
-在 ECS 中，可以使用引用参数 `=` 实现值类型的引用传递。
+对于带条件筛选的场景：
+
+```covscript
+# 生成 1 到 20 中的偶数平方
+var even_squares = new list
+foreach i in range(1, 21)
+    if i % 2 == 0
+        even_squares.push_back(i * i)
+    end
+end
+```
+
+### Q: 函数参数是值传递还是引用传递？
+
+**A**: CovScript 中所有参数都是**引用传递**，包括重新赋值也会修改原变量。
+
+```covscript
+function modifyArray(arr)
+    arr.push_back(100)  # 会修改原数组
+end
+
+function reassignNumber(num)
+    num = 100  # 重新赋值也会修改原变量
+end
+
+var myArr = {1, 2, 3}
+modifyArray(myArr)
+system.out.println(myArr)  # 输出: {1, 2, 3, 100}
+
+var myNum = 42
+reassignNumber(myNum)
+system.out.println(myNum)  # 输出: 100（已改变）
+```
+
+**安全实践**：如果需要修改参数而不影响原值，必须使用 `clone()` 创建副本：
+
+```covscript
+function safeModify(arr)
+    var _arr = clone(arr)  # 创建副本，避免修改原数据
+    _arr.push_back(100)
+    return _arr
+end
+
+var original = {1, 2, 3}
+var modified = safeModify(original)
+system.out.println(original)  # 输出: {1, 2, 3}（未改变）
+system.out.println(modified)  # 输出: {1, 2, 3, 100}
+```
+
+**常见陷阱**：传递字面量（如 `1`、`"str"`、`true` 等）时要特别小心，因为无法修改字面量：
+
+```covscript
+function tryModify(val)
+    val = 200  # 错误！不能修改字面量
+end
+
+tryModify(100)  # 运行时错误
+```
+
+**ECS 特性**：在 ECS 中，`=` 表示**按值捕获**参数，创建副本而非引用：
+
+```covscript
+function safeModify(=arr)
+    arr.push_back(100)  # 修改的是副本，不影响原数据
+end
+
+var original = {1, 2, 3}
+safeModify(original)
+system.out.println(original)  # 输出: {1, 2, 3}（未改变）
+```
 
 ### Q: 如何实现函数重载？
 
@@ -160,9 +221,38 @@ end
 
 ### Q: 类的构造函数如何传递参数？
 
-**A**: 
-- **CovScript 3**：在类体内定义 `construct` 函数，但 `new` 不能传参
-- **ECS**：`new` 和 `gcnew` 可以传参
+**A**: CSC 和 ECS 在构造函数参数传递上有显著差异：
+
+**CSC**：
+- `new` 和 `gcnew` 不支持传参
+- 需要手动调用初始化方法
+
+```covscript
+class Person
+    var name = ""
+    var age = 0
+    
+    function init(n, a)
+        this.name = n
+        this.age = a
+        return this
+    end
+end
+
+# 方式 1：手动调用初始化方法
+var p1 = (new Person).init("Alice", 25)
+
+# 方式 2：工厂函数（推荐）
+function createPerson(name, age)
+    return (new Person).init(name, age)
+end
+
+var p2 = createPerson("Bob", 30)
+```
+
+**ECS**：
+- `new` 和 `gcnew` 直接支持传参
+- 参数自动传递给 `construct` 函数（如果已定义）
 
 ```covscript
 class Person
@@ -175,13 +265,15 @@ class Person
     end
 end
 
-# CovScript 3
-var p = new Person{}
-# 需要手动调用 construct 或使用其他方式初始化
-
-# ECS
 var p = new Person{"Alice", 25}
+system.out.println(p.name)  # 输出: Alice
 ```
+
+**最佳实践**：推荐统一使用工厂函数模式，原因如下：
+- **跨版本兼容**：同一套代码可在 CSC 和 ECS 中运行
+- **语义清晰**：函数名明确表达创建意图（如 `createUser`、`buildConfig`）
+- **灵活扩展**：便于添加参数验证、默认值处理、对象池等高级功能
+- **便于测试**：工厂函数可轻松模拟（mock）对象创建过程
 
 ---
 
@@ -189,29 +281,31 @@ var p = new Person{"Alice", 25}
 
 ### Q: 如何读取整个文件的内容？
 
-**A**: 使用循环读取：
+**A**: 使用循环逐行读取：
 
 ```covscript
 function readFile(filename)
-    var file = iostream.fstream(filename, iostream.openmode.in)
-    var content = ""
-    
+    var file = iostream.ifstream(filename)
+    var content = new string
+
+    # 逐行读取直到文件末尾
     loop
         var line = file.getline()
-        if file.eof()
+        if !file.good()
             break
         end
         content += line + "\n"
     end
-    
-    file.close()
+
     return content
 end
+
+var text = readFile("example.txt")
 ```
 
 ### Q: 如何获取命令行参数？
 
-**A**: 使用 `context.cmd_args`（需要在可以访问上下文的地方）：
+**A**: 使用 `context.cmd_args`：
 
 ```covscript
 # 在主程序中
@@ -225,17 +319,17 @@ end
 
 ### Q: 如何生成随机数？
 
-**A**: 
+**A**: 使用 `math` 库的随机函数：
 
 ```covscript
 # 随机整数（1-100）
 var num = math.randint(1, 100)
 
 # 随机浮点数（0.0-1.0）
-var float = math.rand(0, 1)
+var f = math.rand()
 
 # 随机浮点数（指定范围）
-var float2 = math.rand(10.5, 20.5)
+var f2 = math.rand(10.5, 20.5)
 ```
 
 ### Q: 如何遍历目录中的文件？
@@ -245,8 +339,8 @@ var float2 = math.rand(10.5, 20.5)
 ```covscript
 var files = system.path.scan(".")
 foreach file in files
-    if !system.path.is_dir(file)
-        system.out.println("文件: " + file)
+    if file.type != system.path.type.dir
+        system.out.println("文件: " + file.name)
     end
 end
 ```
@@ -318,20 +412,31 @@ stmt.just_exec()
 
 ### Q: ImGui 如何显示中文？
 
-**A**: 使用 `imgui_font.source_han_sans` 字体：
+**A**: 设置 UTF-8 模式，并使用 `imgui_font.source_han_sans` 字体：
 
 ```covscript
-import imgui
+@charset: utf8
+import imgui, imgui_font
+using imgui
 
-window_application([]() {
-    add_font_extend_cn(imgui_font.source_han_sans)
-    push_font(0)
-    
-    # GUI 代码
-    text("你好，世界！")
-    
+var app = window_application(800, 640, "Test ImGUI Application")
+var font = add_font_extend_cn(imgui_font.source_han_sans, 16)
+var window_opened = true
+
+while !app.is_closed()
+	app.prepare()
+	push_font(font)
+    begin_window("测试窗口", window_opened, {})
+        if !window_opened
+            break
+        end
+        set_window_size(vec2(400, 300))
+        # GUI 代码
+        text("你好，世界！")
+    end_window()
     pop_font()
-})
+	app.render()
+end
 ```
 
 ---
@@ -340,7 +445,7 @@ window_application([]() {
 
 ### Q: CovScript 的性能如何？
 
-**A**: CovScript 是解释型语言，性能介于 Python 和 Lua 之间。对于 CPU 密集型任务，建议：
+**A**: CovScript 是解释型语言，性能与 Python、Lua 等相近。对于 CPU 密集型任务，建议：
 1. 使用 C++ 编写扩展模块
 2. 减少不必要的对象创建
 3. 使用合适的数据结构
@@ -352,15 +457,16 @@ window_application([]() {
 2. **减少字符串拼接**（使用列表收集后一次性拼接）
 3. **缓存计算结果**
 4. **使用局部变量**而非全局变量
-5. **选择合适的数据结构**（hash_map vs list）
+5. **选择合适的数据结构**
 
 ### Q: 内存占用太高怎么办？
 
-**A**: 
+**A**: CovScript 使用 RAII + 引用 GC 的内存管理方式，理论上不会出现异常内存占用。若遇到问题，可尝试：
+
 1. 及时关闭文件和资源
 2. 清空不再使用的大型列表/数组
 3. 避免循环引用
-4. 使用 `gcnew` 代替 `new`（由垃圾回收器管理）
+4. 使用 `--stack-resize` 调整栈大小（若是栈溢出）
 
 ---
 
@@ -375,18 +481,71 @@ window_application([]() {
 
 ### Q: 如何调试 CovScript 程序？
 
-**A**: 使用 `cs_dbg` 调试器：
+**A**: 使用 `cs_dbg` 调试器。
+
+**启动方式**：
 
 ```bash
 cs_dbg program.csc
+```
 
-# 调试器命令
-break 10      # 在第 10 行设置断点
-run           # 运行程序
-step          # 单步执行
-print x       # 打印变量 x 的值
-continue      # 继续执行
-quit          # 退出调试器
+**启动选项**：
+
+| 选项 | 简称 | 功能 |
+|------|------|------|
+| `--help` | `-h` | 显示帮助信息 |
+| `--version` | `-v` | 显示版本信息 |
+| `--silent` | `-s` | 关闭命令提示符 |
+| `--wait-before-exit` | `-w` | 进程退出前等待用户输入 |
+| `--csym <FILE>` | `-g <FILE>` | 从文件读取 cSYM 符号信息 |
+| `--stack-resize <SIZE>` | `-S <SIZE>` | 重设运行时栈大小 |
+| `--log-path <PATH>` | `-l <PATH>` | 设置日志输出路径 |
+| `--import-path <PATH>` | `-i <PATH>` | 设置模块导入路径 |
+
+**常用调试命令**：
+
+| 命令 | 快捷键 | 功能 |
+|------|--------|------|
+| `run [args...]` | `r` | 运行程序（可指定参数） |
+| `break <line\|function>` | `b` | 在指定行号或函数处设置断点 |
+| `lsbreak` | `lb` | 列出所有断点 |
+| `rmbreak <id>` | `rb` | 删除指定 ID 的断点 |
+| `next` | `n` | 执行下一条语句（不进入函数） |
+| `step` | `s` | 执行下一条语句（进入函数） |
+| `continue` | `c` | 继续执行直到下一断点 |
+| `print <expression>` | `p` | 计算并输出表达式的值 |
+| `backtrace` | `bt` | 显示调用栈跟踪 |
+| `optimizer [on\|off]` | `o` | 启用/禁用优化器 |
+| `help` | `h` | 显示帮助信息 |
+| `quit` | `q` | 退出调试器 |
+
+**调试工作流示例**：
+
+```bash
+# 启动调试器（指定栈大小）
+cs_dbg --stack-resize 10240 program.csc
+
+# 设置断点
+> break 10           # 在第 10 行设置断点
+> break myFunction   # 在 myFunction 函数入口设置断点
+> lsbreak            # 列出所有已设置的断点
+
+# 开始调试
+> run                # 开始运行程序
+> n                  # 单步执行（不进入函数）
+> s                  # 单步执行（进入函数）
+> p x                # 打印变量 x 的值
+> p x + y            # 计算并打印 x + y
+
+# 查看调用栈
+> bt                 # 显示当前调用栈
+
+# 继续执行
+> c                  # 继续运行到下一断点
+
+# 清理与退出
+> rmbreak 1          # 删除 ID 为 1 的断点
+> q                  # 退出调试器
 ```
 
 ### Q: 如何在代码中添加断点？
@@ -437,7 +596,7 @@ var f = fiber.create([]() {
     system.out.println("Hello from fiber")
 })
 
-fiber.resume(f)  # 必须调用才会执行
+f.resume()  # 必须调用才会执行
 ```
 
 ### Q: 类成员函数中无法访问其他成员怎么办？
@@ -456,14 +615,17 @@ end
 
 ### Q: 为什么 `new` 关键字后需要加 `{}`？
 
-**A**: 这是 CovScript 3 的语法要求。ECS 中可以使用 `new ClassName{args}`。
+**A**: `{}` 是参数列表的语法。仅在 ECS 中支持：
+
+- **CSC**：`new MyClass` 创建对象（不支持 `{}` 语法）
+- **ECS**：`new MyClass{arg1, arg2}` 创建对象并传递参数
 
 ```covscript
-# CovScript 3
-var obj = new MyClass{}
+# CSC
+var obj = new MyClass
 
 # ECS
-var obj = new MyClass{arg1, arg2}
+var obj = new MyClass{"Alice", 25}
 ```
 
 ### Q: 如何处理 "Stack overflow" 错误？
@@ -497,7 +659,7 @@ end
 **A**: 
 1. 检查语法：`ecs -c program.ecs`
 2. 清除缓存：删除 `.ecs_cache/` 目录
-3. 确认 CovScript 3 已正确安装
+3. 确认 CSC 已正确安装
 4. 查看详细错误信息
 
 ### Q: 如何报告 Bug？
@@ -524,6 +686,6 @@ end
 
 ---
 
-**最后更新日期**：2025-12-08
+**最后更新日期**：2025-12-10
 
 如果你有其他问题，欢迎在 GitHub 提交 Issue 或 Pull Request！
