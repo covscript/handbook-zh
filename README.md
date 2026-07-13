@@ -56,6 +56,10 @@ CovScript 目前活跃的有两个主要版本，分别是：
    - 标准库、扩展库使用
    - 性能优化、开发工具
    - 疑难杂症解决
+ + [肆 · 语言参考](./reference/README.md)
+   - [内建类型](./reference/01-types.md)
+   - [语法参考](./reference/02-grammar.md)
+   - [术语表](./reference/03-glossary.md)
 
 ## 快速开始
 
